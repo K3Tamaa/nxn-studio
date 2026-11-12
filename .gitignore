@@ -1,0 +1,6 @@
+.build/
+dist/
+fixtures/
+shots/
+build/
+.DS_Store
