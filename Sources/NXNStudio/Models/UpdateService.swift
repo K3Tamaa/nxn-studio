@@ -141,7 +141,14 @@ final class UpdateService: ObservableObject {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let destination = directory.appendingPathComponent(manifest.url.lastPathComponent)
 
-        let (temp, response) = try await URLSession.shared.download(from: manifest.url)
+        // Cache-busting query derived from the checksum: GitHub's CDN can serve
+        // the previous asset for a few minutes right after a release.
+        var components = URLComponents(url: manifest.url, resolvingAgainstBaseURL: false)
+        if let sha = manifest.sha256, !sha.isEmpty {
+            components?.queryItems = [URLQueryItem(name: "nx", value: String(sha.prefix(12)))]
+        }
+        let target = components?.url ?? manifest.url
+        let (temp, response) = try await URLSession.shared.download(from: target)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw UpdateError.message("Téléchargement impossible.")
         }
@@ -277,7 +284,12 @@ enum UpdateProbe {
                 let manifest = try decoder.decode(UpdateManifest.self, from: data)
                 print("MANIFEST version=\(manifest.version) size=\(manifest.size ?? -1) newer=\(manifest.isNewer)")
 
-                let (temp, _) = try await URLSession.shared.download(from: manifest.url)
+                var components = URLComponents(url: manifest.url, resolvingAgainstBaseURL: false)
+                if let sha = manifest.sha256, !sha.isEmpty {
+                    components?.queryItems = [URLQueryItem(name: "nx", value: String(sha.prefix(12)))]
+                }
+                let target = components?.url ?? manifest.url
+                let (temp, _) = try await URLSession.shared.download(from: target)
                 let file = FileManager.default.temporaryDirectory.appendingPathComponent(manifest.url.lastPathComponent)
                 try? FileManager.default.removeItem(at: file)
                 try FileManager.default.copyItem(at: temp, to: file)
