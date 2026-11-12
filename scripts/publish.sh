@@ -16,23 +16,28 @@ SHA=$(shasum -a 256 "$DMG" | cut -d' ' -f1)
 FILE=$(basename "$DMG" | sed 's/ /%20/g')
 NOTES="${NOTES:-Correctifs et améliorations.}"
 
-cat > dist/latest.json <<EOF
-{
-  "version": "$VERSION",
-  "build": "$(date +%Y%m%d%H%M)",
-  "url": "$BASE_URL/$FILE",
-  "size": $SIZE,
-  "sha256": "$SHA",
-  "signature": "$SIG",
-  "notes": "$NOTES",
-  "publishedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-}
-EOF
+python3 - "$VERSION" "$BASE_URL/$FILE" "$SIZE" "$SHA" "$SIG" "$NOTES" <<'PY'
+import datetime
+import json
+import sys
+
+version, url, size, sha, sig, notes = sys.argv[1:7]
+json.dump({
+    "version": version,
+    "build": datetime.datetime.now().strftime("%Y%m%d%H%M"),
+    "url": url,
+    "size": int(size),
+    "sha256": sha,
+    "signature": sig,
+    "notes": notes.strip(),
+    "publishedAt": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+}, open("dist/latest.json", "w"), indent=2, ensure_ascii=False)
+PY
 
 echo "✓ dist/latest.json"
 echo "  version $VERSION · $SIZE octets · sha256 ${SHA:0:16}…"
 echo ""
 echo "Publie le DMG et latest.json, puis reconstruis avec :"
 echo "  UPDATE_FEED=\"<url de latest.json>\" \\"
-echo "  UPDATE_PUBLIC_KEY=\"$(grep '^public=' "$HOME/.nxnstudio/update-keypair.txt" | cut -d= -f2-)\" \\"
+echo "  UPDATE_PUBLIC_KEY=\"$(grep '^public=' "$HOME/.nxnstudio/update-keypair.txt" 2>/dev/null | cut -d= -f2-)\" \\"
 echo "  ./scripts/package.sh"
