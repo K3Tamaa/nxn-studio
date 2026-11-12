@@ -118,12 +118,14 @@ struct NXNStudioApp: App {
             CommandMenu("Aller") {
                 Button("Bibliothèque") { state.route = .library }
                     .keyboardShortcut("1", modifiers: .command)
-                Button("Construire") { state.route = .build }
+                Button("Launcher") { state.route = .launcher }
                     .keyboardShortcut("2", modifiers: .command)
-                Button("Nouveautés") { state.route = .news }
+                Button("Construire") { state.route = .build }
                     .keyboardShortcut("3", modifiers: .command)
-                Button("Réglages") { state.route = .settings }
+                Button("Nouveautés") { state.route = .news }
                     .keyboardShortcut("4", modifiers: .command)
+                Button("Réglages") { state.route = .settings }
+                    .keyboardShortcut("5", modifiers: .command)
                 Divider()
                 Button("Actualiser les profils") { state.refreshRepo() }
                     .keyboardShortcut("r", modifiers: .command)

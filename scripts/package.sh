@@ -34,6 +34,8 @@ BUILD="${BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
 plutil -replace CFBundleVersion -string "$BUILD" "$APP/Contents/Info.plist"
 [ -n "${FEED_URL:-}" ] && plutil -replace SUFeedURL -string "$FEED_URL" "$APP/Contents/Info.plist"
+# Feuille de mise à jour par défaut du projet (surchargée par UPDATE_FEED).
+UPDATE_FEED="${UPDATE_FEED:-https://github.com/K3Tamaa/nxn-studio/releases/latest/download/latest.json}"
 [ -n "${UPDATE_FEED:-}" ] && plutil -replace NXNUpdateFeed -string "$UPDATE_FEED" "$APP/Contents/Info.plist"
 if [ -z "${UPDATE_PUBLIC_KEY:-}" ] && [ -f "$HOME/.nxnstudio/update-keypair.txt" ]; then
   UPDATE_PUBLIC_KEY=$(grep '^public=' "$HOME/.nxnstudio/update-keypair.txt" | cut -d= -f2-)

@@ -13,12 +13,13 @@ enum NavigationStyle: String, CaseIterable, Identifiable, Codable {
 }
 
 enum Route: String, CaseIterable, Identifiable {
-    case library, build, news, settings
+    case library, launcher, build, news, settings
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .library: return "Bibliothèque"
+        case .launcher: return "Launcher"
         case .build: return "Construire"
         case .news: return "Nouveautés"
         case .settings: return "Réglages"
@@ -28,6 +29,7 @@ enum Route: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .library: return "square.grid.2x2"
+        case .launcher: return "play.rectangle.on.rectangle"
         case .build: return "bolt.fill"
         case .news: return "sparkles"
         case .settings: return "slider.horizontal.3"
@@ -90,6 +92,7 @@ final class AppState: ObservableObject {
     let artworks = ArtworkStore()
     let updates = UpdateService()
     let setup = SetupService()
+    let launcher = LauncherStore()
     /// Turned off by the snapshotter so demo states are not overwritten by a
     /// real git check.
     var autoCheckUpdates = true
@@ -141,6 +144,9 @@ final class AppState: ObservableObject {
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
         setup.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+        launcher.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
 

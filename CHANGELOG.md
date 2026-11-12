@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Onglet **Launcher** : jeux déjà construits sur le Mac, avec artwork, lancement direct et ajout depuis un dossier.
+- Scan automatique des bundles `org.nxnative.*` (Bureau, Téléchargements, Applications, dossiers de build).
+
 ## 1.2.0
 
 - Installation guidée : Homebrew et clone de nxnative depuis le client.

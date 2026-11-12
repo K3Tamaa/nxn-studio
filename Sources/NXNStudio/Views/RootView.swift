@@ -20,6 +20,7 @@ struct RootView: View {
                     Group {
                         switch state.route {
                         case .library: LibraryView()
+                        case .launcher: LauncherView()
                         case .build: BuildView()
                         case .news: NewsView()
                         case .settings: SettingsView()

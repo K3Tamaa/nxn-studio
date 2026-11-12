@@ -12,6 +12,7 @@ Client macOS natif (SwiftUI) pour [seedds/nxnative](https://github.com/seedds/nx
 - **Diagnostic installable** — Python, modules, Xcode, SDK iOS, compilateur Metal, XcodeGen, zstd, .NET et glslang, chacun avec sa commande. Un bouton **Installer** par outil manquant, un bouton **Tout installer** pour la liste, et un journal d'installation en direct avec interruption.
 - **Mise à jour de nxnative** — `git fetch`, comparaison avec la branche amont et pastille « À jour » ou « N commits de retard » à côté du bouton. `git pull --ff-only` lancé depuis le client, puis réanalyse des profils.
 - **Nouveautés** — page dédiée au dépôt : pull requests ouvertes et récemment fusionnées lues depuis l'API GitHub publique (une seule requête, 100 PR), points travaillés, auteurs, labels, filtres, badge des nouveautés depuis la dernière visite et quota d'API restant affiché discrètement.
+- **Launcher** — scanne les jeux déjà construits sur le Mac (bundle `org.nxnative.*`), les affiche en grand avec leur artwork, permet de les lancer, de les révéler dans le Finder et d'en ajouter un depuis un dossier.
 - **Historique** — builds réussies/échouées, durée, sortie, révélation dans le Finder, lecture directe de l'app Mac produite.
 
 ![Build](docs/build.jpg)
@@ -168,7 +169,7 @@ Le client ne modifie pas nxnative : il appelle `scripts/build_ipa_from_nsp.py` a
 
 ## Raccourcis
 
-- `⌘1` bibliothèque, `⌘2` construire, `⌘3` nouveautés, `⌘4` réglages
+- `⌘1` bibliothèque, `⌘2` launcher, `⌘3` construire, `⌘4` nouveautés, `⌘5` réglages
 - `⌘R` réanalyser les profils
 - `⇧⌘D` vérifier l'environnement
 
