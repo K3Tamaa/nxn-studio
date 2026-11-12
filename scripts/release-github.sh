@@ -22,7 +22,7 @@ PUBLIC_KEY=$(grep '^public=' "$KEY_FILE" | cut -d= -f2-)
 FEED="https://github.com/$SLUG/releases/latest/download/latest.json"
 ASSET="https://github.com/$SLUG/releases/download/$TAG/$(basename "$DMG" | sed 's/ /%20/g')"
 
-echo "▸ Dépôt $SLUG…"
+echo "▸ Dépôt ${SLUG}…"
 if ! gh repo view "$SLUG" >/dev/null 2>&1; then
   gh repo create "$SLUG" --public --description "Client macOS non officiel pour nxnative" --source . --remote origin --push
 else
