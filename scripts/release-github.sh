@@ -20,7 +20,9 @@ KEY_FILE="$HOME/.nxnstudio/update-keypair.txt"
 PRIVATE_KEY=$(grep '^private=' "$KEY_FILE" | cut -d= -f2-)
 PUBLIC_KEY=$(grep '^public=' "$KEY_FILE" | cut -d= -f2-)
 FEED="https://github.com/$SLUG/releases/latest/download/latest.json"
-ASSET="https://github.com/$SLUG/releases/download/$TAG/$(basename "$DMG" | sed 's/ /%20/g')"
+SAFE="NXN-Studio-$VERSION.dmg"
+cp "$DMG" "dist/$SAFE"
+ASSET="https://github.com/$SLUG/releases/download/$TAG/$SAFE"
 
 echo "▸ Dépôt ${SLUG}…"
 if ! gh repo view "$SLUG" >/dev/null 2>&1; then
@@ -52,7 +54,7 @@ PY
 echo "▸ Release GitHub…"
 gh release view "$TAG" --repo "$SLUG" >/dev/null 2>&1 && gh release delete "$TAG" --repo "$SLUG" --yes
 gh release create "$TAG" --repo "$SLUG" --title "NXN Studio $VERSION" --notes-file <(awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md) \
-  "$DMG" "dist/latest.json"
+  "dist/$SAFE" "dist/latest.json"
 
 echo ""
 echo "✓ Release publiée : https://github.com/$SLUG/releases/tag/$TAG"
