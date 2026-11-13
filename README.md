@@ -70,18 +70,6 @@ Or install it into your Applications folder:
 
 On first launch, pick the `nxnative` folder (or drop it on the window). The studio remembers it. The interface is available in **French** and **English** (Settings → Appearance → Language).
 
-### Installing on another Mac
-
-Distribution uses the **DMG** produced by `package.sh` (`dist/NXN Studio <version>.dmg`). The app is not notarised, so macOS quarantines it:
-
-1. Drag **NXN Studio** into *Applications*.
-2. Open it once: macOS refuses.
-3. *System Settings → Privacy & Security* → **Open Anyway** (or `xattr -dr com.apple.quarantine "/Applications/NXN Studio.app"`).
-
-`scripts/install.sh` copies the app and clears the quarantine. Once the app is signed with a Developer ID and notarised, that step disappears.
-
-![First launch](docs/onboarding.jpg)
-
 ## Game artwork (IGDB)
 
 By default every game has a generative cover. To use real artwork:
@@ -93,54 +81,6 @@ By default every game has a generative cover. To use real artwork:
 The client ID stays in preferences, the secret in the **Keychain**. Artwork stays on the machine; matching is name-based (normalised, similarity score) and a title without a match keeps its generative cover. Data and images provided by IGDB.
 
 ![IGDB artwork](docs/igdb.jpg)
-
-## Build the app
-
-```bash
-./scripts/package.sh
-```
-
-The script compiles in release, generates the icon (drawn in code, `--make-icon`), assembles the bundle, signs it, and writes `dist/NXN Studio.app`, `dist/NXN Studio.dSYM` and `dist/NXN Studio <version>.dmg`.
-
-The version comes from the `VERSION` file; the build number is a timestamp (`BUILD_NUMBER` to override).
-
-### Developer ID signing
-
-```bash
-DEVELOPER_ID="Developer ID Application: Your Name (TEAMID)" ./scripts/package.sh
-```
-
-The script then signs the app with the hardened runtime entitlement.
-
-### Free updates (no Apple account)
-
-Updates don't require notarisation: the client reads a JSON manifest hosted with the releases (GitHub Releases, a static page…), checks its **Ed25519** signature and the DMG's **SHA-256**, then replaces the app. Only the *first* install needs the Gatekeeper workaround above.
-
-1. Once, generate the key pair and keep the private key out of the repository:
-
-```bash
-"dist/NXN Studio.app/Contents/MacOS/NXNStudio" --gen-update-key
-```
-
-2. Bump `VERSION`, then `./scripts/package.sh`.
-3. Build the signed manifest:
-
-```bash
-UPDATE_PRIVATE_KEY="<private key>" \
-  ./scripts/publish.sh "https://github.com/<you>/<repo>/releases/download/vX.Y.Z"
-```
-
-This writes `dist/latest.json` (version, URL, size, SHA-256, Ed25519 signature, release notes).
-
-4. Publish the DMG **and** `latest.json`, then rebuild the app pointing at the feed:
-
-```bash
-UPDATE_FEED="https://…/latest.json" \
-UPDATE_PUBLIC_KEY="<public key>" \
-./scripts/package.sh
-```
-
-The repository also ships `scripts/release-github.sh`, which creates the GitHub release, uploads both assets and prints the feed URL.
 
 ## Shortcuts
 
