@@ -1,29 +1,31 @@
 # Changelog
 
+**English** · [Français](CHANGELOG.fr.md)
+
 ## 1.4.0
 
-- Full English interface (default), French switchable in Appearance; variable texts and PR labels follow the language.
-- English README.
+- Full English interface (default), French switchable in Appearance; variable texts and PR states follow the language.
+- English README, English-first repository.
 - Remaining French strings in build, news, settings and launcher translated.
 
 ## 1.3.0
 
-- Onglet **Launcher** : jeux déjà construits sur le Mac, avec artwork, lancement direct et ajout depuis un dossier.
-- Scan automatique des bundles `org.nxnative.*` (Bureau, Téléchargements, Applications, dossiers de build).
+- **Launcher** tab: games already built on the Mac, with artwork, direct launch and adding from a folder.
+- Automatic scan of `org.nxnative.*` bundles (Desktop, Downloads, Applications, build folders).
 
 ## 1.2.0
 
-- Installation guidée : Homebrew et clone de nxnative depuis le client.
-- Choix manuel des contenus du build (base, mises à jour, DLC).
-- Thèmes Nuit / OLED / Jour, cinq couleurs d'accent, dock de navigation flottant.
-- Mises à jour de l'app signées Ed25519, avec vérification SHA-256.
-- Diagnostic : Homebrew et git, copie du rapport, relance à chaque ouverture.
-- IGDB : jaquettes et bannières, cache local, attribution.
-- Bandeau d'artwork dans la fiche de build, fenêtre de build en temps réel.
-- Annulation qui arrête toute la descendance des processus.
-- Tests automatisés (`swift test`).
+- Guided setup: Homebrew and the nxnative clone from the client.
+- Manual selection of build contents (base, updates, DLC).
+- Night / OLED / Day themes, five accent colours, floating dock navigation.
+- Ed25519-signed app updates with SHA-256 verification.
+- Diagnostics: Homebrew and git, copy report, re-check on every opening.
+- IGDB: covers and banners, local cache, attribution.
+- Artwork banner in the build screen, live build window.
+- Cancellation now stops the whole process tree.
+- Automated tests (`swift test`).
 
 ## 1.1.0
 
-- Mise à jour de nxnative depuis le client, page Nouveautés, changelog après un pull.
-- Versioning unique (`VERSION`), DMG, dSYM, licence MIT.
+- nxnative updates from the client, What's new page, changelog after a pull.
+- Single versioning (`VERSION`), DMG, dSYM, MIT licence.
