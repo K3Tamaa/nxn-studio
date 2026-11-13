@@ -50,7 +50,7 @@ struct NoGameSelectedView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PageHeader(title: "Construire", subtitle: "Packagez un jeu en app native") {
+            PageHeader(title: L.t("Construire"), subtitle: L.t("Packagez un jeu en app native")) {
                 EmptyView()
             }
 
@@ -69,11 +69,11 @@ struct NoGameSelectedView: View {
                         .font(.system(size: 30, weight: .light))
                         .foregroundStyle(Theme.ember)
                 }
-                Text("Choisissez un jeu à packager")
+                Text(L.t("Choisissez un jeu à packager"))
                     .font(.display(22, weight: .semibold))
                     .trackingHeadline(-0.4)
                     .foregroundStyle(Theme.text)
-                Text("Sélectionnez un profil dans la bibliothèque, ou pointez directement un dossier de NSP, un dump ou un fichier .nup.")
+                Text(L.t("Sélectionnez un profil dans la bibliothèque, ou pointez directement un dossier de NSP, un dump ou un fichier .nup.", "Pick a profile in the library, or point directly at an NSP folder, a dump or a .nup file."))
                     .font(.label(11.5))
                     .foregroundStyle(Theme.textTertiary)
                     .multilineTextAlignment(.center)
@@ -81,17 +81,17 @@ struct NoGameSelectedView: View {
                     .lineSpacing(2)
 
                 HStack(spacing: 10) {
-                    PrimaryButton(title: "Parcourir la bibliothèque", icon: "square.grid.2x2") {
+                    PrimaryButton(title: L.t("Parcourir la bibliothèque"), icon: "square.grid.2x2") {
                         state.route = .library
                     }
-                    GhostButton(title: "Choisir un dossier", icon: "folder") {
+                    GhostButton(title: L.t("Choisir un dossier"), icon: "folder") {
                         state.chooseSource()
                     }
                 }
                 .padding(.top, 4)
 
                 HStack(spacing: 6) {
-                    Text("Astuce : glissez un dossier ou un .nup sur la fenêtre.")
+                    Text(L.t("Astuce : glissez un dossier ou un .nup sur la fenêtre."))
                         .font(.label(9.5))
                         .foregroundStyle(Theme.textTertiary.opacity(0.8))
                 }
@@ -183,7 +183,7 @@ struct BuildFormView: View {
             Panel(padding: 0) {
                 VStack(spacing: 0) {
                     HStack(spacing: 8) {
-                        SectionLabel(text: "Contenus du build")
+                        SectionLabel(text: L.t("Contenus du build"))
                         Text(verbatim: "\(selectedCount)/\(packages.count)")
                             .font(.numeral(9, weight: .bold))
                             .foregroundStyle(Theme.textTertiary)
@@ -191,7 +191,7 @@ struct BuildFormView: View {
                             .padding(.vertical, 1)
                             .background(Capsule().fill(Theme.fill(0.05)))
                         Spacer()
-                        Button(selectedCount == packages.count ? "Tout désélectionner" : "Tout sélectionner") {
+                        Button(selectedCount == packages.count ? L.t("Tout désélectionner") : L.t("Tout sélectionner")) {
                             toggleAll()
                         }
                         .buttonStyle(.plain)
@@ -208,7 +208,7 @@ struct BuildFormView: View {
                     }
 
                     Hairline().padding(.top, 2)
-                    Text("La base est toujours incluse ; les mises à jour et DLC cochés sont copiés dans le build.")
+                    Text(L.t("La base est toujours incluse ; les mises à jour et DLC cochés sont copiés dans le build."))
                         .font(.label(8.5))
                         .foregroundStyle(Theme.textTertiary)
                         .padding(.horizontal, 16)
@@ -366,7 +366,7 @@ struct BuildFormView: View {
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.hairline, lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .help("Retour à la bibliothèque")
+            .help(L.t("Retour à la bibliothèque"))
 
             GameCover(game: game, iconURL: state.iconURL(for: game), posterURL: state.posterURL(for: game), height: 46, bannerStyle: false)
                 .frame(width: 46)
@@ -375,7 +375,7 @@ struct BuildFormView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 5) {
-                    Text("CONSTRUIRE")
+                    Text(L.t("CONSTRUIRE", "BUILD"))
                         .font(.label(7.5, weight: .bold))
                         .tracking(1.5)
                         .foregroundStyle(Theme.ember.opacity(0.9))
@@ -413,7 +413,7 @@ struct BuildFormView: View {
                     Image(systemName: record.succeeded ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .font(.system(size: 10))
                         .foregroundStyle(record.succeeded ? Theme.mint : Theme.danger)
-                    Text("Dernière build \(Fmt.relative(record.date))")
+                    Text(L.t("Dernière build \(Fmt.relative(record.date))", "Last build \(Fmt.relative(record.date))"))
                         .font(.label(9.5))
                         .foregroundStyle(Theme.textTertiary)
                 }
@@ -428,7 +428,7 @@ struct BuildFormView: View {
 
     private var targetPicker: some View {
         VStack(alignment: .leading, spacing: 9) {
-            SectionLabel(text: "Cible")
+            SectionLabel(text: L.t("Cible"))
             HStack(spacing: 10) {
                 ForEach(BuildPlatform.allCases) { platform in
                     TargetCard(
@@ -448,12 +448,12 @@ struct BuildFormView: View {
         Panel(padding: 0) {
             VStack(spacing: 0) {
                 HStack(spacing: 10) {
-                    SectionLabel(text: "Source du jeu")
+                    SectionLabel(text: L.t("Source du jeu"))
                     if let kind = sourceKind {
                         Chip(text: kind.label, icon: kind.icon, color: Theme.textSecondary)
                     }
                     Spacer()
-                    Text(state.draft.isNUP ? "Aucune clé requise pour un .nup" : "Glissez un dossier, un .nup ou un dump")
+                    Text(state.draft.isNUP ? L.t("Aucune clé requise pour un .nup") : L.t("Glissez un dossier, un .nup ou un dump"))
                         .font(.label(9))
                         .foregroundStyle(Theme.textTertiary)
                 }
@@ -475,7 +475,7 @@ struct BuildFormView: View {
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             if state.draft.sourcePath.isEmpty {
-                                Text("Choisir un dossier de jeu ou un .nup")
+                                Text(L.t("Choisir un dossier de jeu ou un .nup"))
                                     .font(.label(12, weight: .medium))
                                     .foregroundStyle(Theme.textSecondary)
                                 Text("NSP, XCI, NSZ, XCZ, dump (base/ updates/ dlc/) ou NUP")
@@ -494,7 +494,7 @@ struct BuildFormView: View {
                             }
                         }
                         Spacer(minLength: 8)
-                        Text("Parcourir")
+                        Text(L.t("Parcourir"))
                             .font(.label(10, weight: .semibold))
                             .foregroundStyle(Theme.textSecondary)
                             .padding(.horizontal, 10)
@@ -522,7 +522,7 @@ struct BuildFormView: View {
                         icon: "key.fill",
                         label: "prod.keys",
                         value: state.draft.keysPath,
-                        placeholder: keyless ? "Non nécessaire pour un .nup" : "Requis pour les NSP",
+                        placeholder: keyless ? L.t("Non nécessaire pour un .nup") : L.t("Requis pour les NSP"),
                         warning: !keyless && !state.draft.keysPath.isEmpty && !FileManager.default.fileExists(atPath: state.draft.keysPath),
                         action: {
                             state.chooseKeys()
@@ -532,9 +532,9 @@ struct BuildFormView: View {
                     Hairline().padding(.leading, 16)
                     PathRow(
                         icon: "arrow.down.doc.fill",
-                        label: "Sortie",
+                        label: L.t("Sortie", "Output"),
                         value: state.draft.outputPath,
-                        placeholder: "Automatique (\(state.draft.platform.outputExtension?.uppercased() ?? "dossier") dans le dossier du jeu)",
+                        placeholder: L.t("Automatique (\(state.draft.platform.outputExtension?.uppercased() ?? "dossier") dans le dossier du jeu)", "Automatic (\(state.draft.platform.outputExtension?.uppercased() ?? "folder") in the game folder)"),
                         action: state.chooseOutput
                     )
                 }
@@ -558,7 +558,7 @@ struct BuildFormView: View {
         if url.pathExtension.lowercased() == "nup" { return SourceKind(label: "NUP", icon: "shippingbox") }
         var isDir: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue else {
-            return SourceKind(label: "Fichier", icon: "doc")
+            return SourceKind(label: L.t("Fichier", "File"), icon: "doc")
         }
         let names = (try? FileManager.default.contentsOfDirectory(atPath: url.path)) ?? []
         let lower = names.map { $0.lowercased() }
@@ -578,46 +578,46 @@ struct BuildFormView: View {
 
     private var optionsSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            SectionLabel(text: "Empaquetage")
+            SectionLabel(text: L.t("Empaquetage"))
             Panel(padding: 6) {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 2), GridItem(.flexible(), spacing: 2)], spacing: 2) {
                     OptionToggle(
-                        title: "RomFS séparé",
-                        detail: "IPA léger, jeu copié à part sur l'appareil",
+                        title: L.t("RomFS séparé"),
+                        detail: L.t("IPA léger, jeu copié à part sur l'appareil"),
                         isOn: $state.draft.romfsSeparate
                     )
                     OptionToggle(
-                        title: "Shaders en fichiers",
-                        detail: "Pour AltServer, exige le RomFS séparé",
+                        title: L.t("Shaders en fichiers", "Shader files"),
+                        detail: L.t("Pour AltServer, exige le RomFS séparé"),
                         isOn: $state.draft.shaderFiles,
                         disabled: !state.draft.romfsSeparate
                     )
                     OptionToggle(
-                        title: "Conserver l'extraction",
-                        detail: "Accélère les builds suivantes",
+                        title: L.t("Conserver l'extraction", "Keep extraction"),
+                        detail: L.t("Accélère les builds suivantes"),
                         isOn: $state.draft.keepExtracted
                     )
                     if state.draft.platform == .ios {
                         OptionToggle(
                             title: "Compteur de FPS",
-                            detail: "Affiche les images/s en haut à gauche",
+                            detail: L.t("Affiche les images/s en haut à gauche"),
                             isOn: $state.draft.showFPS
                         )
                     } else {
                         OptionToggle(
-                            title: "Shaders déjà vus",
-                            detail: "Seulement les shaders des playtests",
+                            title: L.t("Shaders déjà vus"),
+                            detail: L.t("Seulement les shaders des playtests"),
                             isOn: $state.draft.seenShaders
                         )
                     }
                     OptionToggle(
                         title: "Motion",
-                        detail: "Gyroscope et manette à mouvement",
+                        detail: L.t("Gyroscope et manette à mouvement"),
                         isOn: $state.draft.motion
                     )
                     OptionToggle(
-                        title: "Ignorer les régressions",
-                        detail: "Packe même si un shader échoue",
+                        title: L.t("Ignorer les régressions"),
+                        detail: L.t("Packe même si un shader échoue"),
                         isOn: $state.draft.allowShaderRegressions
                     )
                 }
@@ -639,11 +639,11 @@ struct BuildFormView: View {
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Theme.textTertiary)
-                        Text("Options avancées")
+                        Text(L.t("Options avancées"))
                             .font(.label(11.5, weight: .medium))
                             .foregroundStyle(Theme.textSecondary)
                         Spacer()
-                        Text("identité, version, shaders")
+                        Text(L.t("identité, version, shaders"))
                             .font(.label(9))
                             .foregroundStyle(Theme.textTertiary)
                         Image(systemName: "chevron.down")
@@ -661,22 +661,22 @@ struct BuildFormView: View {
                     Hairline()
                     VStack(alignment: .leading, spacing: 14) {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 12) {
-                            FieldBox(label: "Version", placeholder: "la plus récente", text: $state.draft.packageVersion, mono: true)
-                            FieldBox(label: "Nom de l'app", placeholder: game.name, text: $state.draft.appName)
+                            FieldBox(label: L.t("Version", "Version"), placeholder: L.t("la plus récente"), text: $state.draft.packageVersion, mono: true)
+                            FieldBox(label: L.t("Nom de l'app", "App name"), placeholder: game.name, text: $state.draft.appName)
                             FieldBox(label: "Bundle ID", placeholder: game.id == "direct" ? "org.nxnative.<title ID>" : "org.nxnative.\(game.id)", text: $state.draft.bundleID, mono: true)
-                            FieldBox(label: "Langue", placeholder: "English", text: $state.draft.language)
-                            FieldBox(label: "Team ID", placeholder: "équipe Apple", text: $state.draft.teamID, mono: true)
-                            FieldBox(label: "GPU", placeholder: state.draft.platform == .ios ? "g18p" : "GPU de ce Mac", text: $state.draft.gpu, mono: true)
-                            FieldBox(label: "Dossier de travail", placeholder: "<title ID>_build à côté du jeu", text: $state.draft.workDir, mono: true)
-                            IconField(label: "Icône de l'app", text: $state.draft.iconPath)
+                            FieldBox(label: L.t("Langue", "Language"), placeholder: "English", text: $state.draft.language)
+                            FieldBox(label: "Team ID", placeholder: L.t("équipe Apple"), text: $state.draft.teamID, mono: true)
+                            FieldBox(label: "GPU", placeholder: state.draft.platform == .ios ? "g18p" : L.t("GPU de ce Mac", "This Mac's GPU"), text: $state.draft.gpu, mono: true)
+                            FieldBox(label: L.t("Dossier de travail", "Work folder"), placeholder: L.t("<title ID>_build à côté du jeu", "<title ID>_build next to the game"), text: $state.draft.workDir, mono: true)
+                            IconField(label: L.t("Icône de l'app"), text: $state.draft.iconPath)
                         }
 
                         Hairline()
 
                         VStack(spacing: 0) {
-                            CompactToggle(title: "Enquête seulement", detail: "Jeu sans profil : écrit le survey, ne packe rien", isOn: $state.draft.surveyOnly)
-                            CompactToggle(title: "Autoriser un autre compilateur Metal", detail: "Xcode 27.2 est celui testé : un autre peut casser le rendu", isOn: $state.draft.allowOtherMetal)
-                            CompactToggle(title: "Autoriser les fichiers endommagés", detail: "Écrit les NCA tels quels au lieu de s'arrêter", isOn: $state.draft.allowDamaged)
+                            CompactToggle(title: L.t("Enquête seulement"), detail: L.t("Jeu sans profil : écrit le survey, ne packe rien"), isOn: $state.draft.surveyOnly)
+                            CompactToggle(title: L.t("Autoriser un autre compilateur Metal"), detail: L.t("Xcode 27.2 est celui testé : un autre peut casser le rendu"), isOn: $state.draft.allowOtherMetal)
+                            CompactToggle(title: L.t("Autoriser les fichiers endommagés"), detail: L.t("Écrit les NCA tels quels au lieu de s'arrêter"), isOn: $state.draft.allowDamaged)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -715,17 +715,17 @@ struct BuildFormView: View {
                             .fill(checker.isChecking ? Theme.textTertiary : (requiredFailures.isEmpty ? Theme.mint : Theme.warning))
                             .frame(width: 5, height: 5)
                         Text(checker.isChecking
-                             ? "Vérification de l'environnement…"
+                             ? L.t("Vérification de l'environnement…")
                              : (requiredFailures.isEmpty
-                                ? "Environnement prêt · \(state.repo.gamesCount) profils"
-                                : "\(requiredFailures.count) outil\(requiredFailures.count > 1 ? "s" : "") à vérifier"))
+                                ? L.t("Environnement prêt · \(state.repo.gamesCount) profils", "Environment ready · \(state.repo.gamesCount) profiles")
+                                : L.t("\(requiredFailures.count) outil\(requiredFailures.count > 1 ? "s" : "") à vérifier", "\(requiredFailures.count) tool\(requiredFailures.count > 1 ? "s" : "") to review")))
                             .font(.label(10, weight: .medium))
                             .foregroundStyle(checker.isChecking ? Theme.textTertiary : (requiredFailures.isEmpty ? Theme.textSecondary : Theme.warning))
                         if checker.isChecking {
                             ProgressView().controlSize(.mini).scaleEffect(0.7)
                         }
                     }
-                    Text("Première build : 30–60 min selon le jeu. Prévoyez 2× la taille du jeu + 10 Go.")
+                    Text(L.t("Première build : 30–60 min selon le jeu. Prévoyez 2× la taille du jeu + 10 Go."))
                         .font(.label(9.5))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -734,9 +734,9 @@ struct BuildFormView: View {
                 Spacer(minLength: 8)
 
                 if keyless {
-                    Chip(text: "sans clés", icon: "lock.open", color: Theme.mint)
+                    Chip(text: L.t("sans clés"), icon: "lock.open", color: Theme.mint)
                 } else if state.draft.keysPath.isEmpty {
-                    Chip(text: "prod.keys manquant", icon: "exclamationmark.triangle", color: Theme.warning)
+                    Chip(text: L.t("prod.keys manquant", "prod.keys missing"), icon: "exclamationmark.triangle", color: Theme.warning)
                 }
 
                 Button {
@@ -749,7 +749,7 @@ struct BuildFormView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "bolt.fill").font(.system(size: 11, weight: .bold))
-                        Text("Lancer la build").font(.label(12.5, weight: .semibold))
+                        Text(L.t("Lancer la build")).font(.label(12.5, weight: .semibold))
                     }
                     .foregroundStyle(.black.opacity(state.draft.isReady ? 0.92 : 0.35))
                     .padding(.horizontal, 20)
@@ -767,7 +767,7 @@ struct BuildFormView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!state.draft.isReady)
-                .help(state.draft.isReady ? "Démarrer la build" : "Choisissez d'abord une source")
+                .help(state.draft.isReady ? L.t("Démarrer la build") : L.t("Choisissez d'abord une source"))
             }
 
             // Command preview
@@ -794,7 +794,7 @@ struct BuildFormView: View {
                             .foregroundStyle(copied ? Theme.mint : Theme.textTertiary)
                     }
                     .buttonStyle(.plain)
-                    .help("Copier la commande")
+                    .help(L.t("Copier la commande"))
                 }
                 .padding(.horizontal, 10)
                 .frame(height: 26)
@@ -959,7 +959,7 @@ struct OptionToggle: View {
         }
         .buttonStyle(.plain)
         .onHover { hover = $0 }
-        .help(disabled ? "Disponible avec le RomFS séparé" : detail)
+        .help(disabled ? L.t("Disponible avec le RomFS séparé") : detail)
     }
 }
 
@@ -1045,7 +1045,7 @@ struct IconField: View {
                 .tracking(0.9)
                 .foregroundStyle(Theme.textTertiary)
             HStack(spacing: 6) {
-                TextField("icône JPEG ou PNG", text: $text)
+                TextField(L.t("icône JPEG ou PNG"), text: $text)
                     .textFieldStyle(.plain)
                     .font(.mono(10))
                     .foregroundStyle(Theme.text)

@@ -1,5 +1,7 @@
 # NXN Studio
 
+**Français** · [English](README.en.md)
+
 Client macOS natif (SwiftUI) pour [seedds/nxnative](https://github.com/seedds/nxnative) : transformer un dossier de jeux Switch en **app Mac** ou en **IPA**, sans ligne de commande, avec une bibliothèque de profils, un suivi de build en direct, l'installation des dépendances, la mise à jour du checkout et une veille des pull requests du dépôt.
 
 ![Bibliothèque](docs/library.jpg)
@@ -64,7 +66,7 @@ Ou pour l'installer dans votre dossier Applications :
 ./scripts/install.sh
 ```
 
-Au premier lancement, choisissez le dossier `nxnative` (ou glissez-le sur la fenêtre). Le studio le mémorise.
+Au premier lancement, choisissez le dossier `nxnative` (ou glissez-le sur la fenêtre). Le studio le mémorise. L'interface est disponible en **français** et en **anglais** (Réglages → Apparence → Langue).
 
 ### Installer sur un autre Mac
 

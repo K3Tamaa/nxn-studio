@@ -71,7 +71,7 @@ struct BuildMonitorView: View {
             Spacer()
 
             if !running {
-                GhostButton(title: "Nouvelle build", icon: "arrow.counterclockwise") {
+                GhostButton(title: L.t("Nouvelle build"), icon: "arrow.counterclockwise") {
                     runner.reset()
                 }
             }
@@ -82,7 +82,7 @@ struct BuildMonitorView: View {
             }
 
             if running {
-                GhostButton(title: "Interrompre", icon: "stop.fill", tint: Theme.danger) {
+                GhostButton(title: L.t("Interrompre"), icon: "stop.fill", tint: Theme.danger) {
                     runner.cancel()
                 }
             }
@@ -127,7 +127,7 @@ struct BuildMonitorView: View {
                     )
 
                     VStack(alignment: .leading, spacing: 7) {
-                        Text(runner.currentStage?.name ?? (running ? "Démarrage…" : phase.label))
+                        Text(runner.currentStage?.name ?? (running ? L.t("Démarrage…") : phase.label))
                             .font(.label(12, weight: .semibold))
                             .foregroundStyle(Theme.text)
                             .lineLimit(2)
@@ -191,7 +191,7 @@ struct BuildMonitorView: View {
                             state.reveal(out)
                         }
                         if (out as NSString).pathExtension.lowercased() == "app" {
-                            GhostButton(title: "Jouer", icon: "play.fill", tint: Theme.mint, compact: true) {
+                            GhostButton(title: L.t("Jouer"), icon: "play.fill", tint: Theme.mint, compact: true) {
                                 NSWorkspace.shared.open(URL(fileURLWithPath: out))
                             }
                         }
@@ -232,7 +232,7 @@ struct BuildMonitorView: View {
             .frame(height: 4)
 
             HStack {
-                Text(stage.countText ?? (stage.state == .running ? "en cours…" : "terminée"))
+                Text(stage.countText ?? (stage.state == .running ? "en cours…" : L.t("terminée")))
                     .font(.numeral(9, weight: .medium))
                     .foregroundStyle(Theme.textSecondary)
                 if !stage.note.isEmpty {
@@ -275,7 +275,7 @@ struct BuildMonitorView: View {
         Panel(padding: 0) {
             VStack(spacing: 0) {
                 HStack {
-                    SectionLabel(text: "Pipeline")
+                    SectionLabel(text: L.t("Pipeline"))
                     Spacer()
                     Text("\(runner.stages.filter { $0.state == .done || $0.state == .warn }.count)/\(max(runner.totalN, runner.stages.count))")
                         .font(.numeral(9, weight: .bold))
@@ -289,7 +289,7 @@ struct BuildMonitorView: View {
                 if runner.stages.isEmpty {
                     VStack(spacing: 8) {
                         ProgressView().controlSize(.small)
-                        Text("Préparation du pipeline…")
+                        Text(L.t("Préparation du pipeline…"))
                             .font(.label(9.5))
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -313,7 +313,7 @@ struct BuildMonitorView: View {
         Panel(padding: 0) {
             VStack(spacing: 0) {
                 HStack {
-                    SectionLabel(text: "Détails")
+                    SectionLabel(text: L.t("Détails"))
                     Spacer()
                 }
                 .padding(.horizontal, 14)
@@ -348,7 +348,7 @@ struct BuildMonitorView: View {
         Panel(padding: 0) {
             VStack(spacing: 0) {
                 HStack(spacing: 8) {
-                    SectionLabel(text: "Journal")
+                    SectionLabel(text: L.t("Journal"))
                     Text("\(runner.log.count)")
                         .font(.numeral(8.5, weight: .bold))
                         .foregroundStyle(Theme.textTertiary)
@@ -359,11 +359,11 @@ struct BuildMonitorView: View {
                     Spacer()
 
                     if let logFile = runner.logFile {
-                        IconButton(icon: "doc.text.magnifyingglass", help: "Ouvrir le fichier de log") {
+                        IconButton(icon: "doc.text.magnifyingglass", help: L.t("Ouvrir le fichier de log")) {
                             NSWorkspace.shared.open(logFile)
                         }
                     }
-                    IconButton(icon: "doc.on.doc", help: "Copier le journal") {
+                    IconButton(icon: "doc.on.doc", help: L.t("Copier le journal")) {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(runner.logText, forType: .string)
                     }
@@ -383,7 +383,7 @@ struct BuildMonitorView: View {
                         .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.hairline, lineWidth: 1))
                     }
                     .buttonStyle(.plain)
-                    .help("Défilement automatique")
+                    .help(L.t("Défilement automatique"))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -395,7 +395,7 @@ struct BuildMonitorView: View {
                         Image(systemName: "text.alignleft")
                             .font(.system(size: 18, weight: .light))
                             .foregroundStyle(Theme.textTertiary)
-                        Text("Le journal apparaîtra ici.")
+                        Text(L.t("Le journal apparaîtra ici."))
                             .font(.label(10))
                             .foregroundStyle(Theme.textTertiary)
                     }

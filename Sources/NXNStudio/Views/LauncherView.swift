@@ -9,17 +9,17 @@ struct LauncherView: View {
     var body: some View {
         VStack(spacing: 0) {
             PageHeader(
-                title: "Launcher",
+                title: L.t("Launcher"),
                 subtitle: launcherSubtitle
             ) {
                 HStack(spacing: 8) {
-                    GhostButton(title: state.launcher.isScanning ? "Analyse…" : "Rescanner",
+                    GhostButton(title: state.launcher.isScanning ? L.t("Analyse…", "Scanning…") : L.t("Rescanner", "Rescan"),
                                 icon: "arrow.clockwise", compact: true) {
                         Task { await scan() }
                     }
                     .disabled(state.launcher.isScanning)
 
-                    GhostButton(title: "Ouvrir un dossier", icon: "folder", compact: true) {
+                    GhostButton(title: L.t("Ouvrir un dossier"), icon: "folder", compact: true) {
                         chooseFolder()
                     }
                 }
@@ -49,10 +49,10 @@ struct LauncherView: View {
 
     private var launcherSubtitle: String {
         let count = state.launcher.games.count
-        if state.launcher.isScanning { return "Recherche des jeux construits sur ce Mac…" }
-        if count == 0 { return "Aucun jeu construit détecté" }
-        let when = state.launcher.lastScan.map { Fmt.relative($0) } ?? "à l'instant"
-        return "\(count) jeu\(count > 1 ? "x" : "") construit\(count > 1 ? "s" : "") · analysé \(when)"
+        if state.launcher.isScanning { return L.t("Recherche des jeux construits sur ce Mac…") }
+        if count == 0 { return L.t("Aucun jeu construit détecté") }
+        let when = state.launcher.lastScan.map { Fmt.relative($0) } ?? L.t("à l'instant")
+        return L.t("\(count) jeu\(count > 1 ? "x" : "") construit\(count > 1 ? "s" : "") · analysé \(when)", "\(count) game\(count > 1 ? "s" : "") built · scanned \(when)")
     }
 
     private func artworkURL(for game: InstalledGame) -> URL? {
@@ -69,8 +69,8 @@ struct LauncherView: View {
 
     private func chooseFolder() {
         let panel = NSOpenPanel()
-        panel.title = "Ajouter un jeu construit"
-        panel.message = "Choisissez une application .app produite par nxnative"
+        panel.title = L.t("Ajouter un jeu construit")
+        panel.message = L.t("Choisissez une application .app produite par nxnative")
         panel.prompt = "Ajouter"
         panel.canChooseDirectories = true
         panel.allowedContentTypes = [.application]
@@ -91,7 +91,7 @@ struct LauncherView: View {
                         .font(.system(size: 28, weight: .medium))
                         .foregroundStyle(Theme.ember)
                 }
-                Text("Aucun jeu installé")
+                Text(L.t("Aucun jeu installé"))
                     .font(.label(14, weight: .semibold))
                     .foregroundStyle(Theme.text)
                 Text("Construisez un jeu dans l'onglet Construire : l'app produite apparaîtra ici, avec les jeux déjà présents sur le Mac.")
@@ -99,7 +99,7 @@ struct LauncherView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 420)
-                GhostButton(title: "Chercher à nouveau", icon: "arrow.clockwise", compact: true) {
+                GhostButton(title: L.t("Chercher à nouveau"), icon: "arrow.clockwise", compact: true) {
                     Task { await scan() }
                 }
                 .padding(.top, 2)
@@ -142,7 +142,7 @@ struct LauncherCard: View {
                             HStack(spacing: 5) {
                                 Image(systemName: "play.fill")
                                     .font(.system(size: 8, weight: .bold))
-                                Text("Jouer")
+                                Text(L.t("Jouer"))
                                     .font(.label(9, weight: .semibold))
                             }
                             .foregroundStyle(.black)
@@ -195,9 +195,9 @@ struct LauncherCard: View {
         }
         .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: hover)
         .contextMenu {
-            Button("Lancer") { state.launcher.open(game) }
-            Button("Afficher dans le Finder") { state.launcher.reveal(game) }
-            Button("Copier le chemin") {
+            Button(L.t("Lancer")) { state.launcher.open(game) }
+            Button(L.t("Afficher dans le Finder")) { state.launcher.reveal(game) }
+            Button(L.t("Copier le chemin")) {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(game.path.path, forType: .string)
             }

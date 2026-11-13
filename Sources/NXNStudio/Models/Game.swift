@@ -80,7 +80,7 @@ struct Game: Identifiable, Hashable {
 struct RepoStatus: Equatable {
     var url: URL?
     var isValid = false
-    var message: String = "Aucun dossier nxnative sélectionné"
+    var message: String = L.t("Aucun dossier nxnative sélectionné", "No nxnative folder selected")
     var gamesCount = 0
 }
 
@@ -105,7 +105,7 @@ enum RepoInspector {
         return RepoStatus(
             url: url,
             isValid: true,
-            message: "\(games.count) profils de jeux détectés",
+            message: L.t("\(games.count) profils de jeux détectés", "\(games.count) game profiles found"),
             gamesCount: games.count
         )
     }
@@ -123,16 +123,16 @@ enum BuildPlatform: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .ios: return "iPhone & iPad"
-        case .macApp: return "App Mac"
-        case .mac: return "Développement"
+        case .macApp: return L.t("App Mac", "Mac app")
+        case .mac: return L.t("Développement", "Development")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .ios: return "IPA non signé à sideloader"
-        case .macApp: return "App autonome double-cliquable"
-        case .mac: return "Hôte Mac, sans packager"
+        case .ios: return L.t("IPA non signé à sideloader", "Unsigned IPA for sideloading")
+        case .macApp: return L.t("App autonome double-cliquable", "Standalone double-clickable app")
+        case .mac: return L.t("Hôte Mac, sans packager", "Mac host, no packaging")
         }
     }
 

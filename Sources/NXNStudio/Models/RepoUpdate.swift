@@ -131,31 +131,31 @@ final class RepoUpdate: ObservableObject {
 
     var statusLabel: String {
         switch state {
-        case .idle: return "Non vérifié"
-        case .checking: return "Vérification…"
-        case .ready(let s): return s.ahead > 0 ? "À jour · \(s.ahead) local" : "À jour"
-        case .behind(let s): return "\(s.behind) commit\(s.behind > 1 ? "s" : "") de retard"
-        case .notGit: return "Pas un dépôt git"
-        case .failed: return "Vérification impossible"
-        case .updating: return "Mise à jour…"
-        case .updated: return "À jour"
+        case .idle: return L.t("Non vérifié", "Not checked")
+        case .checking: return L.t("Vérification…", "Checking…")
+        case .ready(let s): return s.ahead > 0 ? L.t("À jour · \(s.ahead) local", "Up to date · \(s.ahead) local") : L.t("À jour", "Up to date")
+        case .behind(let s): return L.t("\(s.behind) commit\(s.behind > 1 ? "s" : "") de retard", "\(s.behind) commit\(s.behind > 1 ? "s" : "") behind")
+        case .notGit: return L.t("Pas un dépôt git", "Not a git repository")
+        case .failed: return L.t("Vérification impossible", "Check failed")
+        case .updating: return L.t("Mise à jour…", "Updating…")
+        case .updated: return L.t("À jour", "Up to date")
         }
     }
 
     var detail: String {
         switch state {
         case .idle:
-            return "Vérifiez si le checkout local est à jour"
+            return L.t("Vérifiez si le checkout local est à jour", "Check whether the local checkout is up to date")
         case .checking:
-            return "Interrogation de la branche amont…"
+            return L.t("Interrogation de la branche amont…", "Querying the upstream branch…")
         case .ready(let s), .updated(let s), .behind(let s):
             var text = "\(s.branchName) · \(s.lastCommit)"
-            if s.dirty { text += " · modifications locales" }
+            if s.dirty { text += L.t(" · modifications locales", " · local changes") }
             return text
         case .notGit(let message), .failed(let message):
             return message
         case .updating:
-            return "git pull --ff-only en cours…"
+            return L.t("git pull --ff-only en cours…", "git pull --ff-only in progress…")
         }
     }
 

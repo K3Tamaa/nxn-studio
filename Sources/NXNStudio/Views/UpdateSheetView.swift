@@ -62,25 +62,25 @@ struct UpdateSheetView: View {
 
     private var title: String {
         switch service.phase {
-        case .checking: return "Recherche de mise à jour…"
-        case .upToDate: return "Vous êtes à jour"
+        case .checking: return L.t("Recherche de mise à jour…")
+        case .upToDate: return L.t("Vous êtes à jour")
         case .available(let manifest): return "Version \(manifest.version) disponible"
-        case .downloading: return "Téléchargement…"
+        case .downloading: return L.t("Téléchargement…")
         case .installing: return "Installation…"
-        case .failed: return "Mise à jour impossible"
-        case .idle: return "Mises à jour"
+        case .failed: return L.t("Mise à jour impossible")
+        case .idle: return L.t("Mises à jour")
         }
     }
 
     private var subtitle: String {
         switch service.phase {
-        case .upToDate: return "Version installée : \(AppVersion.marketing)"
+        case .upToDate: return L.t("Version installée : \(AppVersion.marketing)", "Installed version: \(AppVersion.marketing)")
         case .available(let manifest):
-            return "Installée : \(AppVersion.marketing) → disponible : \(manifest.version)"
+            return L.t("Installée : \(AppVersion.marketing) → disponible : \(manifest.version)", "Installed: \(AppVersion.marketing) → available: \(manifest.version)")
         case .failed(let message): return message
         case .downloading(let progress):
-            return progress > 0 ? "Vérification de la signature…" : "Récupération du paquet…"
-        default: return "Flux configuré par l'auteur de l'app"
+            return progress > 0 ? L.t("Vérification de la signature…") : L.t("Récupération du paquet…")
+        default: return L.t("Flux configuré par l'auteur de l'app")
         }
     }
 
@@ -101,7 +101,7 @@ struct UpdateSheetView: View {
                 if manifest.signature == nil || service.hasSigningKey == false {
                     HStack(spacing: 6) {
                         Image(systemName: "info.circle")
-                        Text("Version non signée : téléchargement manuel uniquement.")
+                        Text(L.t("Version non signée : téléchargement manuel uniquement."))
                     }
                     .font(.label(8.5))
                     .foregroundStyle(Theme.warning)
@@ -142,7 +142,7 @@ struct UpdateSheetView: View {
                 Button {
                     service.downloadOnly(manifest)
                 } label: {
-                    Text("Télécharger le DMG")
+                    Text(L.t("Télécharger le DMG"))
                         .font(.label(9.5, weight: .medium))
                         .foregroundStyle(Theme.textSecondary)
                         .padding(.horizontal, 10)
@@ -160,7 +160,7 @@ struct UpdateSheetView: View {
                     HStack(spacing: 5) {
                         Image(systemName: "arrow.down.circle.fill")
                             .font(.system(size: 9, weight: .bold))
-                        Text("Installer maintenant")
+                        Text(L.t("Installer maintenant"))
                             .font(.label(9.5, weight: .semibold))
                     }
                     .foregroundStyle(service.hasSigningKey ? .black : Theme.textTertiary)
@@ -172,13 +172,13 @@ struct UpdateSheetView: View {
                 .disabled(service.hasSigningKey == false)
             } else if case .checking = service.phase {
                 ProgressView().controlSize(.mini).scaleEffect(0.6)
-                Text("Connexion au flux…")
+                Text(L.t("Connexion au flux…"))
                     .font(.label(9))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
             } else {
                 Spacer()
-                Button("Fermer") { dismiss() }
+                Button(L.t("Fermer")) { dismiss() }
                     .buttonStyle(.plain)
                     .font(.label(9.5, weight: .medium))
                     .foregroundStyle(Theme.textSecondary)

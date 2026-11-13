@@ -18,7 +18,7 @@ struct OnboardingView: View {
                             .font(.display(32, weight: .semibold))
                             .trackingHeadline(-1)
                             .foregroundStyle(Theme.text)
-                        Text("NXN Studio pilote nxnative : il transforme vos jeux en app Mac ou en IPA, suit chaque étape et garde vos réglages.")
+                        Text(L.t("NXN Studio pilote nxnative : il transforme vos jeux en app Mac ou en IPA, suit chaque étape et garde vos réglages.", "NXN Studio drives nxnative: it turns your games into a Mac app or an IPA, follows every step and keeps your settings."))
                             .font(.label(12.5))
                             .foregroundStyle(Theme.textSecondary)
                             .lineSpacing(3)
@@ -45,25 +45,25 @@ struct OnboardingView: View {
 
                 VStack(spacing: 0) {
                     StepRow(number: 1,
-                            title: "Le checkout nxnative",
-                            detail: "Le dossier cloné, avec scripts/ et dm/games.",
+                            title: L.t("Le checkout nxnative"),
+                            detail: L.t("Le dossier cloné, avec scripts/ et dm/games."),
                             done: state.repo.isValid)
                     Hairline().padding(.leading, 42)
                     StepRow(number: 2,
-                            title: "Vos clés Switch",
-                            detail: "prod.keys, seulement pour les NSP — inutile pour les .nup et les dumps.",
+                            title: L.t("Vos clés Switch"),
+                            detail: L.t("prod.keys, seulement pour les NSP — inutile pour les .nup et les dumps."),
                             done: !state.keysPath.isEmpty && FileManager.default.fileExists(atPath: state.keysPath))
                     Hairline().padding(.leading, 42)
                     StepRow(number: 3,
-                            title: "Un jeu à packager",
-                            detail: "Un dossier de NSP, un dump ou un fichier .nup.",
+                            title: L.t("Un jeu à packager"),
+                            detail: L.t("Un dossier de NSP, un dump ou un fichier .nup."),
                             done: false)
                 }
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.panel))
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.hairline, lineWidth: 1))
 
                 HStack(spacing: 10) {
-                    PrimaryButton(title: "Choisir le dossier nxnative", icon: "folder.badge.plus") {
+                    PrimaryButton(title: L.t("Choisir le dossier nxnative"), icon: "folder.badge.plus") {
                         state.chooseRepo()
                     }
                     GhostButton(title: "Choisir prod.keys", icon: "key") {
@@ -72,7 +72,7 @@ struct OnboardingView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("PAS ENCORE CLONÉ ?")
+                    Text(L.t("PAS ENCORE CLONÉ ?"))
                         .font(.label(8.5, weight: .semibold))
                         .tracking(1.4)
                         .foregroundStyle(Theme.textTertiary)
@@ -101,7 +101,7 @@ struct OnboardingView: View {
                     .background(RoundedRectangle(cornerRadius: 8).fill(Theme.inset))
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.hairline, lineWidth: 1))
 
-                    Text("Puis installez les outils : brew install xcodegen zstd glslang, Python 3.12, Xcode 27.2.")
+                    Text(L.t("Puis installez les outils : brew install xcodegen zstd glslang, Python 3.12, Xcode 27.2."))
                         .font(.label(10))
                         .foregroundStyle(Theme.textTertiary)
                         .padding(.top, 2)

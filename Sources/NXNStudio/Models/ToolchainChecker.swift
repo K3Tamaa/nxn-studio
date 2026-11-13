@@ -57,39 +57,39 @@ final class ToolchainChecker: ObservableObject {
     }
 
     static let placeholders: [ToolCheck] = [
-        ToolCheck(id: "repo", label: "Checkout nxnative", detail: "Vérification…", state: .running),
-        ToolCheck(id: "brew", label: "Homebrew", detail: "Vérification…", state: .running),
-        ToolCheck(id: "git", label: "git", detail: "Vérification…", state: .running),
-        ToolCheck(id: "python", label: "Python 3.12+", detail: "Vérification…", state: .running),
-        ToolCheck(id: "modules", label: "Modules Python", detail: "Vérification…", state: .running),
-        ToolCheck(id: "xcode", label: "Xcode", detail: "Vérification…", state: .running),
-        ToolCheck(id: "ios-sdk", label: "SDK iOS", detail: "Vérification…", state: .running),
-        ToolCheck(id: "metal", label: "Compilateur Metal", detail: "Vérification…", state: .running),
-        ToolCheck(id: "xcodegen", label: "XcodeGen", detail: "Vérification…", state: .running),
-        ToolCheck(id: "zstd", label: "zstd", detail: "Vérification…", state: .running),
-        ToolCheck(id: "dotnet", label: ".NET SDK", detail: "Vérification…", state: .running),
-        ToolCheck(id: "glslang", label: "glslang", detail: "Vérification…", state: .running, required: false),
+        ToolCheck(id: "repo", label: L.t("Checkout nxnative", "nxnative checkout"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "brew", label: L.t("Homebrew", "Homebrew"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "git", label: "git", detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "python", label: L.t("Python 3.12+", "Python 3.12+"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "modules", label: L.t("Modules Python", "Python modules"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "xcode", label: "Xcode", detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "ios-sdk", label: "SDK iOS", detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "metal", label: L.t("Compilateur Metal", "Metal compiler"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "xcodegen", label: "XcodeGen", detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "zstd", label: "zstd", detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "dotnet", label: L.t(".NET SDK", ".NET SDK"), detail: L.t("Vérification…"), state: .running),
+        ToolCheck(id: "glslang", label: "glslang", detail: L.t("Vérification…"), state: .running, required: false),
     ]
 
     #if DEBUG
     static let demoMissing: [ToolCheck] = [
-        ToolCheck(id: "repo", label: "Checkout nxnative",
+        ToolCheck(id: "repo", label: L.t("Checkout nxnative", "nxnative checkout"),
                   detail: "build_ipa_from_nsp.py + dm/games", state: .ok),
-        ToolCheck(id: "brew", label: "Homebrew", detail: "/opt/homebrew/bin/brew", state: .ok),
+        ToolCheck(id: "brew", label: L.t("Homebrew", "Homebrew"), detail: "/opt/homebrew/bin/brew", state: .ok),
         ToolCheck(id: "git", label: "git", detail: "git version 2.51.0", state: .ok),
-        ToolCheck(id: "python", label: "Python 3.12+", detail: "Python 3.15.2", state: .ok),
-        ToolCheck(id: "modules", label: "Modules Python",
+        ToolCheck(id: "python", label: L.t("Python 3.12+", "Python 3.12+"), detail: "Python 3.15.2", state: .ok),
+        ToolCheck(id: "modules", label: L.t("Modules Python", "Python modules"),
                   detail: "lz4, capstone, fonttools manquants", state: .missing,
                   hint: "python3 -m pip install lz4 \"capstone>=5,<6\" fonttools nsz zbic"),
         ToolCheck(id: "xcode", label: "Xcode", detail: "Xcode 27.2", state: .ok),
         ToolCheck(id: "ios-sdk", label: "SDK iOS", detail: "absent", state: .missing,
                   hint: "Xcode → Settings → Components → installez la plateforme iOS."),
-        ToolCheck(id: "metal", label: "Compilateur Metal", detail: "toolchain Metal absent",
+        ToolCheck(id: "metal", label: L.t("Compilateur Metal", "Metal compiler"), detail: "toolchain Metal absent",
                   state: .missing, hint: "xcodebuild -downloadComponent MetalToolchain"),
         ToolCheck(id: "xcodegen", label: "XcodeGen", detail: "introuvable", state: .missing,
                   hint: "brew install xcodegen"),
         ToolCheck(id: "zstd", label: "zstd", detail: "*** Zstandard CLI v1.5.7 ***", state: .ok),
-        ToolCheck(id: "dotnet", label: ".NET SDK", detail: "SDK 10.0.403", state: .ok),
+        ToolCheck(id: "dotnet", label: L.t(".NET SDK", ".NET SDK"), detail: "SDK 10.0.403", state: .ok),
         ToolCheck(id: "glslang", label: "glslang", detail: "introuvable (jeux Vulkan / OpenGL)",
                   state: .warn, hint: "brew install glslang", required: false),
     ]
@@ -101,7 +101,7 @@ final class ToolchainChecker: ObservableObject {
 
             // 1. Repository
             results.append(ToolCheck(
-                id: "repo", label: "Checkout nxnative",
+                id: "repo", label: L.t("Checkout nxnative", "nxnative checkout"),
                 detail: repo.isValid ? "build_ipa_from_nsp.py + dm/games" : repo.message,
                 state: repo.isValid ? .ok : .missing,
                 hint: repo.isValid ? nil : "Choisissez le dossier cloné de seedds/nxnative."
@@ -112,7 +112,7 @@ final class ToolchainChecker: ObservableObject {
                 FileManager.default.isExecutableFile(atPath: $0)
             }
             results.append(ToolCheck(
-                id: "brew", label: "Homebrew",
+                id: "brew", label: L.t("Homebrew", "Homebrew"),
                 detail: brew ?? "introuvable",
                 state: brew == nil ? .missing : .ok,
                 hint: "Homebrew installe Python, XcodeGen, zstd et glslang.",
@@ -135,7 +135,7 @@ final class ToolchainChecker: ObservableObject {
             let parts = versionNumber.split(separator: ".").compactMap { Int($0) }
             let recent = parts.count >= 2 && (parts[0] > 3 || (parts[0] == 3 && parts[1] >= 12))
             results.append(ToolCheck(
-                id: "python", label: "Python 3.12+",
+                id: "python", label: L.t("Python 3.12+", "Python 3.12+"),
                 detail: version.isEmpty ? "introuvable" : version,
                 state: python.code == 0 && recent ? .ok : (python.code == 0 ? .warn : .missing),
                 hint: "Installez Python 3.12 arm64 (pas celui de Homebrew Intel)."
@@ -148,7 +148,7 @@ final class ToolchainChecker: ObservableObject {
             ])
             let moduleDetail = modules.output.trimmingCharacters(in: .whitespacesAndNewlines)
             results.append(ToolCheck(
-                id: "modules", label: "Modules Python",
+                id: "modules", label: L.t("Modules Python", "Python modules"),
                 detail: modules.code == 0 ? moduleDetail : "lz4, capstone, fonttools manquants",
                 state: modules.code == 0 ? .ok : .missing,
                 hint: "python3 -m pip install lz4 \"capstone>=5,<6\" fonttools nsz zbic"
@@ -178,7 +178,7 @@ final class ToolchainChecker: ObservableObject {
             let metal = shell("/usr/bin/xcrun", ["-sdk", "macosx", "metal", "--version"])
             let metalDetail = metal.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
             results.append(ToolCheck(
-                id: "metal", label: "Compilateur Metal",
+                id: "metal", label: L.t("Compilateur Metal", "Metal compiler"),
                 detail: metal.code == 0 ? metalDetail : "toolchain Metal absent",
                 state: metal.code == 0 ? .ok : .missing,
                 hint: "xcodebuild -downloadComponent MetalToolchain"
@@ -210,7 +210,7 @@ final class ToolchainChecker: ObservableObject {
             let dotnet = shell("/usr/bin/env", ["dotnet", "--version"])
             let dotnetDetail = dotnet.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
             results.append(ToolCheck(
-                id: "dotnet", label: ".NET SDK",
+                id: "dotnet", label: L.t(".NET SDK", ".NET SDK"),
                 detail: dotnet.code == 0 ? "SDK \(dotnetDetail)" : "introuvable",
                 state: dotnet.code == 0 ? .ok : .missing,
                 hint: "brew install --cask dotnet-sdk"

@@ -6,9 +6,9 @@ import Combine
 enum NavigationStyle: String, CaseIterable, Identifiable, Codable {
     case sidebar, dock
     var id: String { rawValue }
-    var title: String { self == .sidebar ? "Barre latérale" : "Dock flottant" }
+    var title: String { self == .sidebar ? L.t("Barre latérale", "Sidebar") : L.t("Dock flottant", "Floating dock") }
     var detail: String {
-        self == .sidebar ? "Le menu sur le côté" : "Une barre d'icônes en bas"
+        self == .sidebar ? L.t("Le menu sur le côté", "The side menu") : L.t("Une barre d'icônes en bas", "An icon bar at the top")
     }
 }
 
@@ -18,11 +18,11 @@ enum Route: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .library: return "Bibliothèque"
-        case .launcher: return "Launcher"
-        case .build: return "Construire"
-        case .news: return "Nouveautés"
-        case .settings: return "Réglages"
+        case .library: return L.t("Bibliothèque")
+        case .launcher: return L.t("Launcher")
+        case .build: return L.t("Construire")
+        case .news: return L.t("Nouveautés")
+        case .settings: return L.t("Réglages")
         }
     }
 
@@ -53,6 +53,13 @@ final class AppState: ObservableObject {
         didSet {
             Theme.accent = themeAccent
             defaults.set(themeAccent.rawValue, forKey: "themeAccent")
+            appearanceRevision += 1
+        }
+    }
+    @Published var language: AppLanguage = .fr {
+        didSet {
+            L.language = language
+            defaults.set(language.rawValue, forKey: "language")
             appearanceRevision += 1
         }
     }
@@ -103,6 +110,14 @@ final class AppState: ObservableObject {
            let mode = ThemeMode(rawValue: raw) {
             themeMode = mode
             Theme.mode = mode
+        }
+        if let raw = UserDefaults.standard.string(forKey: "language"),
+           let language = AppLanguage(rawValue: raw) {
+            self.language = language
+            L.language = language
+        } else {
+            self.language = .en
+            L.language = .en
         }
         if let raw = UserDefaults.standard.string(forKey: "navigationStyle"),
            let style = NavigationStyle(rawValue: raw) {

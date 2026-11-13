@@ -28,11 +28,11 @@ struct SetupSheetView: View {
     private var subtitle: String {
         if setup.isRunning {
             return setup.task == .homebrew
-                ? "Le script officiel tourne ; macOS demande votre mot de passe."
-                : "Récupération du dépôt nxnative…"
+                ? L.t("Le script officiel tourne ; macOS demande votre mot de passe.")
+                : L.t("Récupération du dépôt nxnative…")
         }
         if let error = setup.lastError { return error }
-        return "Les opérations restent sur votre Mac."
+        return L.t("Les opérations restent sur votre Mac.")
     }
 
     private var header: some View {
@@ -110,7 +110,7 @@ struct SetupSheetView: View {
                 setup.close()
                 dismiss()
             } label: {
-                Text("Fermer")
+                Text(L.t("Fermer"))
                     .font(.label(9.5, weight: .medium))
                     .foregroundStyle(Theme.textSecondary)
                     .padding(.horizontal, 10)

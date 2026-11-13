@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0
+
+- Full English interface (default), French switchable in Appearance; variable texts and PR labels follow the language.
+- English README.
+- Remaining French strings in build, news, settings and launcher translated.
+
 ## 1.3.0
 
 - Onglet **Launcher** : jeux déjà construits sur le Mac, avec artwork, lancement direct et ajout depuis un dossier.

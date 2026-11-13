@@ -12,7 +12,7 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            PageHeader(title: "Réglages", subtitle: "Environnement, mises à jour et diagnostic") {
+            PageHeader(title: L.t("Réglages"), subtitle: L.t("Environnement, mises à jour et diagnostic")) {
                 EmptyView()
             }
 
@@ -50,11 +50,11 @@ struct SettingsView: View {
             SetupSheetView(setup: state.setup)
         }
         .confirmationDialog(
-            "Installer les dépendances manquantes ?",
+            L.t("Installer les dépendances manquantes ?"),
             isPresented: $confirmInstallAll,
             titleVisibility: .visible
         ) {
-            Button("Installer \(bulkSteps.count) dépendance\(bulkSteps.count > 1 ? "s" : "")") {
+            Button(L.t("Installer \(bulkSteps.count) dépendance\(bulkSteps.count > 1 ? "s" : "")", "Install \(bulkSteps.count) dependenc\(bulkSteps.count > 1 ? "ies" : "y")")) {
                 installAll()
             }
             Button("Annuler", role: .cancel) {}
@@ -68,25 +68,25 @@ struct SettingsView: View {
     private var environmentPanel: some View {
         Panel(padding: 0) {
             VStack(spacing: 0) {
-                panelHeader(title: "Environnement",
-                            subtitle: state.repo.isValid ? "nxnative est connecté" : "Aucun checkout valide")
+                panelHeader(title: L.t("Environnement"),
+                            subtitle: state.repo.isValid ? L.t("nxnative est connecté") : "Aucun checkout valide")
 
                 SettingRow(icon: "shippingbox",
                            tint: state.repo.isValid ? Theme.mint : Theme.warning,
                            title: "Checkout nxnative",
-                           detail: state.repoPath.isEmpty ? "Aucun dossier sélectionné" : state.repoPath,
+                           detail: state.repoPath.isEmpty ? L.t("Aucun dossier sélectionné") : state.repoPath,
                            status: state.repo.isValid ? "✓ \(state.repo.gamesCount) profils" : state.repo.message) {
                     HStack(spacing: 6) {
                         if !state.repo.isValid {
-                            GhostButton(title: "Cloner nxnative", icon: "arrow.down.circle",
+                            GhostButton(title: L.t("Cloner nxnative"), icon: "arrow.down.circle",
                                         tint: Theme.ember, compact: true) {
                                 cloneRepo()
                             }
                         }
-                        GhostButton(title: "Re-scan", icon: "arrow.clockwise", compact: true) {
+                        GhostButton(title: L.t("Re-scan"), icon: "arrow.clockwise", compact: true) {
                             state.refreshRepo()
                         }
-                        GhostButton(title: "Choisir…", icon: "folder", compact: true) {
+                        GhostButton(title: L.t("Choisir…"), icon: "folder", compact: true) {
                             state.chooseRepo()
                         }
                     }
@@ -101,9 +101,9 @@ struct SettingsView: View {
                 SettingRow(icon: "key",
                            tint: !state.keysPath.isEmpty ? Theme.mint : Theme.textTertiary,
                            title: "prod.keys",
-                           detail: state.keysPath.isEmpty ? "Non configuré" : state.keysPath,
-                           status: state.keysPath.isEmpty ? "requis pour les NSP" : "clés prêtes") {
-                    GhostButton(title: "Choisir…", icon: "key", compact: true) {
+                           detail: state.keysPath.isEmpty ? L.t("Non configuré") : state.keysPath,
+                           status: state.keysPath.isEmpty ? L.t("requis pour les NSP") : L.t("clés prêtes")) {
+                    GhostButton(title: L.t("Choisir…"), icon: "key", compact: true) {
                         state.chooseKeys()
                     }
                 }
@@ -117,10 +117,10 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.textTertiary)
                             .frame(width: 20)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("Cible par défaut")
+                            Text(L.t("Cible par défaut"))
                                 .font(.label(11, weight: .medium))
                                 .foregroundStyle(Theme.text)
-                            Text("Utilisée quand vous ouvrez un jeu")
+                            Text(L.t("Utilisée quand vous ouvrez un jeu"))
                                 .font(.label(8.5))
                                 .foregroundStyle(Theme.textTertiary)
                         }
@@ -168,10 +168,10 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.ember)
                     }
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Apparence")
+                        Text(L.t("Apparence"))
                             .font(.label(12, weight: .semibold))
                             .foregroundStyle(Theme.text)
-                        Text("Thème et couleur d'accent, appliqués immédiatement")
+                        Text(L.t("Thème et couleur d'accent, appliqués immédiatement"))
                             .font(.label(8.5))
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -191,7 +191,7 @@ struct SettingsView: View {
                 .padding(.top, 12)
 
                 HStack(spacing: 8) {
-                    Text("Accent")
+                    Text(L.t("Accent"))
                         .font(.label(8.5, weight: .medium))
                         .foregroundStyle(Theme.textTertiary)
                     ForEach(ThemeAccent.allCases) { accent in
@@ -219,7 +219,7 @@ struct SettingsView: View {
                 .padding(.top, 10)
 
                 HStack(spacing: 8) {
-                    Text("Navigation")
+                    Text(L.t("Navigation"))
                         .font(.label(8.5, weight: .medium))
                         .foregroundStyle(Theme.textTertiary)
                         .frame(width: 64, alignment: .leading)
@@ -230,9 +230,51 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
+
+                HStack(spacing: 8) {
+                    Text(L.t("Langue", "Language"))
+                        .font(.label(8.5, weight: .medium))
+                        .foregroundStyle(Theme.textTertiary)
+                        .frame(width: 64, alignment: .leading)
+                    ForEach(AppLanguage.allCases) { language in
+                        languageTile(language)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
                 .padding(.bottom, 14)
             }
         }
+    }
+
+    private func languageTile(_ language: AppLanguage) -> some View {
+        let selected = state.language == language
+        return Button {
+            state.language = language
+        } label: {
+            HStack(spacing: 7) {
+                Text(language.short)
+                    .font(.numeral(8.5, weight: .bold))
+                    .foregroundStyle(selected ? Theme.ember : Theme.textTertiary)
+                Text(language.title)
+                    .font(.label(9.5, weight: .medium))
+                    .foregroundStyle(selected ? Theme.text : Theme.textSecondary)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 9)
+            .frame(height: 30)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(selected ? Theme.ember.opacity(0.08) : Theme.inset)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(selected ? Theme.ember.opacity(0.35) : Theme.hairline, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .frame(width: 132)
     }
 
     private func navigationTile(_ style: NavigationStyle) -> some View {
@@ -317,7 +359,7 @@ struct SettingsView: View {
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 7) {
-                            Text("Visuels des jeux")
+                            Text(L.t("Visuels des jeux"))
                                 .font(.label(12, weight: .semibold))
                                 .foregroundStyle(Theme.text)
                             Text("IGDB")
@@ -328,7 +370,7 @@ struct SettingsView: View {
                                 .padding(.vertical, 1.5)
                                 .background(Capsule().fill(Theme.violet.opacity(0.10)))
                         }
-                        Text("Couvertures et bannières récupérées depuis IGDB · \(artworkSummary)")
+                        Text(L.t("Couvertures et bannières récupérées depuis IGDB · \(artworkSummary)", "Covers and banners fetched from IGDB · \(artworkSummary)"))
                             .font(.label(8.5))
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -336,23 +378,23 @@ struct SettingsView: View {
 
                     HStack(spacing: 6) {
                         if state.artworks.isRunning {
-                            GhostButton(title: "Interrompre", icon: "stop.circle", tint: Theme.danger, compact: true) {
+                            GhostButton(title: L.t("Interrompre"), icon: "stop.circle", tint: Theme.danger, compact: true) {
                                 state.artworks.cancel()
                             }
                         } else {
                             if state.artworks.count > 0 {
-                                GhostButton(title: "Vider", icon: "trash", compact: true) {
+                                GhostButton(title: L.t("Vider"), icon: "trash", compact: true) {
                                     state.artworks.clearCache()
                                 }
-                                .help("Supprimer les visuels téléchargés")
+                                .help(L.t("Supprimer les visuels téléchargés"))
                             }
-                            GhostButton(title: "Tester", icon: "bolt.horizontal", compact: true) {
+                            GhostButton(title: L.t("Tester"), icon: "bolt.horizontal", compact: true) {
                                 saveCredentials()
                                 Task { await state.artworks.testConnection() }
                             }
                             .disabled(!state.artworks.isConfigured)
 
-                            GhostButton(title: "Récupérer", icon: "arrow.down.circle",
+                            GhostButton(title: L.t("Récupérer"), icon: "arrow.down.circle",
                                         tint: Theme.ember, compact: true) {
                                 fetchArtwork()
                             }
@@ -384,7 +426,7 @@ struct SettingsView: View {
                 Button {
                     saveCredentials()
                 } label: {
-                    Text("Enregistrer")
+                    Text(L.t("Enregistrer"))
                         .font(.label(9, weight: .semibold))
                         .foregroundStyle(Theme.text)
                         .padding(.horizontal, 10)
@@ -401,13 +443,13 @@ struct SettingsView: View {
                 HStack(spacing: 4) {
                     Image(systemName: state.artworks.hasSecret ? "lock.fill" : "lock.open")
                         .font(.system(size: 7.5, weight: .semibold))
-                    Text(state.artworks.hasSecret ? "secret dans le Keychain" : "secret manquant")
+                    Text(state.artworks.hasSecret ? L.t("secret dans le Keychain") : "secret manquant")
                         .font(.label(8))
                 }
                 .foregroundStyle(state.artworks.hasSecret ? Theme.mint.opacity(0.8) : Theme.textTertiary)
             }
 
-            Text("dev.twitch.tv/console → Applications → votre app. Le client ID reste en préférences, le secret va dans le Keychain.")
+            Text(L.t("dev.twitch.tv/console → Applications → votre app. Le client ID reste en préférences, le secret va dans le Keychain.", "dev.twitch.tv/console → Applications → your app. The client ID stays in preferences, the secret goes to the Keychain."))
                 .font(.label(8))
                 .foregroundStyle(Theme.textTertiary.opacity(0.85))
                 .lineLimit(1)
@@ -423,7 +465,7 @@ struct SettingsView: View {
                 .foregroundStyle(Theme.textTertiary)
             Group {
                 if secure {
-                    SecureField(state.artworks.hasSecret ? "•••••••• (enregistré)" : "secret", text: text)
+                    SecureField(state.artworks.hasSecret ? L.t("•••••••• (enregistré)") : "secret", text: text)
                 } else {
                     TextField("client id", text: text)
                 }
@@ -458,7 +500,7 @@ struct SettingsView: View {
                     Circle().fill(Theme.mint).frame(width: 4, height: 4)
                 }
 
-                Text(state.artworks.lastError ?? (state.artworks.status.isEmpty ? "Prêt" : state.artworks.status))
+                Text(state.artworks.lastError ?? (state.artworks.status.isEmpty ? L.t("Prêt") : state.artworks.status))
                     .font(.label(9))
                     .foregroundStyle(state.artworks.lastError == nil ? Theme.textSecondary : Theme.warning.opacity(0.9))
                     .lineLimit(2)
@@ -522,7 +564,7 @@ struct SettingsView: View {
             }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 7) {
-                    Text("Mise à jour nxnative")
+                    Text(L.t("Mise à jour nxnative"))
                         .font(.label(11, weight: .medium))
                         .foregroundStyle(Theme.text)
                     updateBadge
@@ -542,7 +584,7 @@ struct SettingsView: View {
                             .background(Capsule().fill((showChangelog ? Theme.ember : Color.white).opacity(showChangelog ? 0.10 : 0.05)))
                         }
                         .buttonStyle(.plain)
-                        .help("Voir les changements de la dernière mise à jour")
+                        .help(L.t("Voir les changements de la dernière mise à jour"))
                         .popover(isPresented: $showChangelog, arrowEdge: .bottom) {
                             if let changelog = state.repoUpdate.lastUpdate ?? state.repoUpdate.recent {
                                 UpdateChangelogView(
@@ -574,14 +616,14 @@ struct SettingsView: View {
             }
             Spacer(minLength: 10)
             HStack(spacing: 6) {
-                GhostButton(title: state.repoUpdate.isBusy ? "Vérification…" : "Vérifier",
+                GhostButton(title: state.repoUpdate.isBusy ? L.t("Vérification…", "Checking…") : L.t("Vérifier", "Check"),
                             icon: "arrow.clockwise", compact: true) {
                     Task { await state.repoUpdate.check(repo: state.repo.url) }
                 }
                 .disabled(state.repoUpdate.isBusy || !state.repo.isValid)
 
                 if state.repoUpdate.behindCount > 0 {
-                    GhostButton(title: "Mettre à jour", icon: "arrow.down.circle.fill",
+                    GhostButton(title: L.t("Mettre à jour"), icon: "arrow.down.circle.fill",
                                 tint: Theme.ember, compact: true) {
                         updateRepo()
                     }
@@ -622,13 +664,13 @@ struct SettingsView: View {
         case .ready, .updated:
             statusPill("À jour", tint: Theme.mint, icon: "checkmark.circle.fill")
         case .behind(let snapshot):
-            statusPill("\(snapshot.behind) en retard", tint: Theme.warning, icon: "arrow.down.circle.fill")
+            statusPill(L.t("\(snapshot.behind) en retard", "\(snapshot.behind) behind"), tint: Theme.warning, icon: "arrow.down.circle.fill")
         case .notGit:
-            statusPill("pas un dépôt git", tint: Theme.warning, icon: "exclamationmark.triangle.fill")
+            statusPill(L.t("pas un dépôt git"), tint: Theme.warning, icon: "exclamationmark.triangle.fill")
         case .failed:
-            statusPill("échec de vérification", tint: Theme.warning, icon: "exclamationmark.triangle.fill")
+            statusPill(L.t("échec de vérification"), tint: Theme.warning, icon: "exclamationmark.triangle.fill")
         case .idle:
-            statusPill("non vérifié", tint: Theme.textTertiary, icon: "circle.dashed")
+            statusPill(L.t("non vérifié"), tint: Theme.textTertiary, icon: "circle.dashed")
         }
     }
 
@@ -660,7 +702,7 @@ struct SettingsView: View {
     private func copyDiagnostic() {
         var lines = [
             "NXN Studio \(AppVersion.marketing) (\(AppVersion.build)) · \(AppVersion.platform)",
-            "Dépôt : \(state.repoPath.isEmpty ? "non configuré" : state.repoPath)",
+            "Dépôt : \(state.repoPath.isEmpty ? L.t("non configuré") : state.repoPath)",
             "",
         ]
         for check in checker.checks {
@@ -680,8 +722,8 @@ struct SettingsView: View {
 
     private func cloneRepo() {
         let panel = NSOpenPanel()
-        panel.title = "Où cloner nxnative ?"
-        panel.message = "Choisissez un dossier ; nxnative sera créé dedans."
+        panel.title = L.t("Où cloner nxnative ?")
+        panel.message = L.t("Choisissez un dossier ; nxnative sera créé dedans.")
         panel.prompt = "Cloner ici"
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
@@ -713,7 +755,7 @@ struct SettingsView: View {
         if let update = state.repoUpdate.lastUpdate {
             return "\(update.total) commit\(update.total > 1 ? "s" : "")"
         }
-        return "commits récents"
+        return L.t("commits récents")
     }
 
     private func openChangelog() {
@@ -735,7 +777,7 @@ struct SettingsView: View {
                 HStack(spacing: 8) {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 7) {
-                            Text("Diagnostic")
+                            Text(L.t("Diagnostic"))
                                 .font(.label(12, weight: .semibold))
                                 .foregroundStyle(Theme.text)
                             if installer.isRunning {
@@ -753,13 +795,13 @@ struct SettingsView: View {
                     }
                     Spacer()
 
-                    GhostButton(title: "Copier", icon: "doc.on.doc", compact: true) {
+                    GhostButton(title: L.t("Copier"), icon: "doc.on.doc", compact: true) {
                         copyDiagnostic()
                     }
-                    .help("Copier le diagnostic dans le presse-papiers")
+                    .help(L.t("Copier le diagnostic dans le presse-papiers"))
 
                     if !bulkSteps.isEmpty {
-                        GhostButton(title: "Tout installer",
+                        GhostButton(title: L.t("Tout installer"),
                                     icon: "arrow.down.circle",
                                     tint: Theme.ember,
                                     compact: true) {
@@ -768,7 +810,7 @@ struct SettingsView: View {
                         .disabled(installer.isRunning)
                     }
 
-                    GhostButton(title: checker.isChecking ? "Vérification…" : "Vérifier",
+                    GhostButton(title: checker.isChecking ? L.t("Vérification…", "Checking…") : L.t("Vérifier", "Check"),
                                 icon: "stethoscope",
                                 compact: true) {
                         checker.run(repo: state.repo)
@@ -861,23 +903,23 @@ struct SettingsView: View {
                     Button {
                         installer.cancel()
                     } label: {
-                        Text("Interrompre")
+                        Text(L.t("Interrompre"))
                             .font(.label(9, weight: .semibold))
                             .foregroundStyle(Theme.danger)
                     }
                     .buttonStyle(.plain)
-                    .help("Arrêter l'installation en cours")
+                    .help(L.t("Arrêter l'installation en cours"))
                 } else {
                     if installer.lastFailure != nil, !bulkSteps.isEmpty {
                         Button {
                             installAll()
                         } label: {
-                            Text("Reprendre")
+                            Text(L.t("Reprendre"))
                                 .font(.label(9, weight: .semibold))
                                 .foregroundStyle(Theme.ember)
                         }
                         .buttonStyle(.plain)
-                        .help("Relancer les dépendances encore manquantes")
+                        .help(L.t("Relancer les dépendances encore manquantes"))
                     }
                     Button {
                         installer.clear()
@@ -887,7 +929,7 @@ struct SettingsView: View {
                             .foregroundStyle(Theme.textTertiary)
                     }
                     .buttonStyle(.plain)
-                    .help("Fermer le journal")
+                    .help(L.t("Fermer le journal"))
                 }
             }
             .padding(.horizontal, 16)
@@ -934,14 +976,14 @@ struct SettingsView: View {
     }
 
     private var diagnosticSummary: String {
-        if checker.isChecking { return "Analyse de la chaîne d'outils…" }
-        if checker.checks.isEmpty { return "Lancez une vérification de l'environnement" }
+        if checker.isChecking { return L.t("Analyse de la chaîne d'outils…") }
+        if checker.checks.isEmpty { return L.t("Lancez une vérification de l'environnement") }
         let failed = checker.checks.filter { $0.required && $0.state == .missing }.count
         let warned = checker.checks.filter { $0.state == .warn }.count
-        let stamp = checker.lastRun.map { " · vérifié à \(Fmt.clock($0))" } ?? ""
-        if failed > 0 { return "\(failed) outil\(failed > 1 ? "s" : "") manquant\(failed > 1 ? "s" : "")\(stamp)" }
-        if warned > 0 { return "Prêt · \(warned) avertissement\(warned > 1 ? "s" : "")\(stamp)" }
-        return "Tous les outils requis sont présents\(stamp)"
+        let stamp = checker.lastRun.map { L.t(" · vérifié à \(Fmt.clock($0))", " · checked at \(Fmt.clock($0))") } ?? ""
+        if failed > 0 { return L.t("\(failed) outil\(failed > 1 ? "s" : "") manquant\(failed > 1 ? "s" : "")\(stamp)", "\(failed) missing tool\(failed > 1 ? "s" : "")\(stamp)") }
+        if warned > 0 { return L.t("Prêt · \(warned) avertissement\(warned > 1 ? "s" : "")\(stamp)", "Ready · \(warned) warning\(warned > 1 ? "s" : "")\(stamp)") }
+        return L.t("Tous les outils requis sont présents\(stamp)", "All required tools are present\(stamp)")
     }
 
     // MARK: History
@@ -951,16 +993,16 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Historique des builds")
+                        Text(L.t("Historique des builds"))
                             .font(.label(12, weight: .semibold))
                             .foregroundStyle(Theme.text)
-                        Text(state.records.isEmpty ? "Aucune build enregistrée" : "\(state.records.count) builds locales")
+                        Text(state.records.isEmpty ? L.t("Aucune build enregistrée") : "\(state.records.count) builds locales")
                             .font(.label(8.5))
                             .foregroundStyle(Theme.textTertiary)
                     }
                     Spacer()
                     if !state.records.isEmpty {
-                        GhostButton(title: "Effacer", icon: "trash", compact: true) {
+                        GhostButton(title: L.t("Effacer"), icon: "trash", compact: true) {
                             state.resetHistory()
                         }
                     }
@@ -995,7 +1037,7 @@ struct SettingsView: View {
                         Chip(text: "v\(AppVersion.marketing)", color: Theme.textTertiary)
                         Chip(text: AppVersion.platform, color: Theme.textTertiary)
                     }
-                    Text("Client macOS non officiel pour nxnative, sans affiliation avec Nintendo. Les jeux et leurs données restent sur votre Mac ; rien n'est envoyé.")
+                    Text(L.t("Client macOS non officiel pour nxnative, sans affiliation avec Nintendo. Les jeux et leurs données restent sur votre Mac ; rien n'est envoyé."))
                         .font(.label(9.5))
                         .foregroundStyle(Theme.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -1003,7 +1045,7 @@ struct SettingsView: View {
 
                     HStack(spacing: 14) {
                         Link(destination: URL(string: "https://github.com/seedds/nxnative")!) {
-                            linkLabel("Dépôt nxnative", icon: "arrow.up.right")
+                            linkLabel(L.t("Dépôt nxnative"), icon: "arrow.up.right")
                         }
                         Link(destination: URL(string: "https://github.com/seedds/nxnative/blob/main/docs/frontends.md")!) {
                             linkLabel("Docs front ends", icon: "book")
@@ -1012,7 +1054,7 @@ struct SettingsView: View {
                             linkLabel("Licence nxnative (MIT)", icon: "doc.text")
                         }
                         Link(destination: URL(string: "https://www.igdb.com")!) {
-                            linkLabel("Données IGDB", icon: "photo")
+                            linkLabel(L.t("Données IGDB"), icon: "photo")
                         }
                     }
                     .padding(.top, 2)
@@ -1207,12 +1249,12 @@ struct HistoryRow: View {
                     if let path = record.outputPath { state.reveal(path) }
                 }
                 if record.isApp {
-                    GhostButton(title: "Jouer", icon: "play.fill", tint: Theme.mint, compact: true) {
+                    GhostButton(title: L.t("Jouer"), icon: "play.fill", tint: Theme.mint, compact: true) {
                         state.play(record)
                     }
                 }
             } else {
-                Text("sortie supprimée")
+                Text(L.t("sortie supprimée"))
                     .font(.label(8.5))
                     .foregroundStyle(Theme.textTertiary.opacity(0.6))
             }

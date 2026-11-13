@@ -9,9 +9,9 @@ struct NewsView: View {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .all: return "Tout"
-            case .open: return "Ouvertes"
-            case .done: return "Terminées"
+            case .all: return L.t("Tout", "All")
+            case .open: return L.t("Ouvertes", "Open")
+            case .done: return L.t("Terminées")
             }
         }
     }
@@ -25,8 +25,8 @@ struct NewsView: View {
     var body: some View {
         VStack(spacing: 0) {
             PageHeader(
-                title: "Nouveautés",
-                subtitle: "Pull requests et fonctionnalités récentes de nxnative"
+                title: L.t("Nouveautés"),
+                subtitle: L.t("Pull requests et fonctionnalités récentes de nxnative")
             ) {
                 HStack(spacing: 8) {
                     syncBadge
@@ -34,14 +34,14 @@ struct NewsView: View {
                         rateChip(remaining)
                     }
                     GhostButton(
-                        title: state.news.isLoading ? "Actualisation…" : "Actualiser",
+                        title: state.news.isLoading ? L.t("Actualisation…", "Refreshing…") : L.t("Actualiser", "Refresh"),
                         icon: "arrow.clockwise",
                         compact: true
                     ) {
                         refresh(markSeen: true)
                     }
                     .disabled(state.news.isLoading)
-                    GhostButton(title: "GitHub", icon: "arrow.up.right", compact: true) {
+                    GhostButton(title: L.t("GitHub"), icon: "arrow.up.right", compact: true) {
                         NSWorkspace.shared.open(repoURL)
                     }
                 }
@@ -62,13 +62,13 @@ struct NewsView: View {
                         emptyState
                     } else {
                         if filter != .done, !state.news.open.isEmpty {
-                            feedSection(title: "En cours",
-                                        subtitle: "Travail ouvert, du plus récemment modifié au plus ancien",
+                            feedSection(title: L.t("En cours"),
+                                        subtitle: L.t("Travail ouvert, du plus récemment modifié au plus ancien"),
                                         items: state.news.open)
                         }
                         if filter != .open, !state.news.closed.isEmpty {
-                            feedSection(title: "Récemment terminées",
-                                        subtitle: "Pull requests fusionnées ou fermées",
+                            feedSection(title: L.t("Récemment terminées"),
+                                        subtitle: L.t("Pull requests fusionnées ou fermées"),
                                         items: state.news.closed)
                         }
                     }
@@ -100,18 +100,18 @@ struct NewsView: View {
         HStack(spacing: 5) {
             if state.news.isLoading {
                 ProgressView().controlSize(.mini).scaleEffect(0.6)
-                Text("Synchronisation…")
+                Text(L.t("Synchronisation…"))
             } else if state.news.lastError != nil {
                 Image(systemName: "wifi.exclamationmark")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(Theme.warning)
-                Text("hors ligne")
+                Text(L.t("hors ligne"))
             } else if let date = state.news.lastSynced {
                 Circle().fill(Theme.mint).frame(width: 4, height: 4)
-                Text("synchronisé \(relativeSync(date))")
+                Text(L.t("synchronisé \(relativeSync(date))", "synced \(relativeSync(date))"))
             } else {
                 Circle().fill(Theme.textTertiary).frame(width: 4, height: 4)
-                Text("jamais synchronisé")
+                Text(L.t("jamais synchronisé"))
             }
         }
         .font(.label(9))
@@ -133,10 +133,10 @@ struct NewsView: View {
                     .foregroundStyle(Theme.ember)
             }
             VStack(alignment: .leading, spacing: 1) {
-                Text("\(freshCount) nouveauté\(freshCount > 1 ? "s" : "") depuis votre dernière visite")
+                Text(L.t("\(freshCount) nouveauté\(freshCount > 1 ? "s" : "") depuis votre dernière visite", "\(freshCount) new item\(freshCount > 1 ? "s" : "") since your last visit"))
                     .font(.label(11, weight: .semibold))
                     .foregroundStyle(Theme.text)
-                Text("Les pull requests concernées sont dans le flux ci-dessous.")
+                Text(L.t("Les pull requests concernées sont dans le flux ci-dessous."))
                     .font(.label(9))
                     .foregroundStyle(Theme.textTertiary)
             }
@@ -168,16 +168,16 @@ struct NewsView: View {
     private var summaryPanel: some View {
         Panel(padding: 0) {
             HStack(spacing: 0) {
-                metric(value: "\(state.news.open.count)", label: "Pull requests ouvertes",
+                metric(value: "\(state.news.open.count)", label: L.t("Pull requests ouvertes", "Open pull requests"),
                        tint: Theme.cyan, icon: "arrow.triangle.branch")
                 metricDivider
-                metric(value: "\(state.news.mergedRecently)", label: "Terminées · 14 jours",
+                metric(value: "\(state.news.mergedRecently)", label: L.t("Terminées · 14 jours"),
                        tint: Theme.mint, icon: "checkmark.seal")
                 metricDivider
-                metric(value: "\(state.news.contributors)", label: "Contributeurs dans le flux",
+                metric(value: "\(state.news.contributors)", label: L.t("Contributeurs dans le flux"),
                        tint: Theme.violet, icon: "person.2")
                 Spacer(minLength: 0)
-                Text("\(state.news.items.count) PR récentes")
+                Text("\(state.news.items.count) PR")
                     .font(.label(8.5))
                     .foregroundStyle(Theme.textTertiary)
                     .padding(.trailing, 16)
@@ -278,22 +278,22 @@ struct NewsView: View {
             VStack(spacing: 10) {
                 if state.news.isLoading {
                     ProgressView().controlSize(.small).scaleEffect(0.9)
-                    Text("Lecture de l'activité nxnative…")
+                    Text(L.t("Lecture de l'activité nxnative…"))
                         .font(.label(11))
                         .foregroundStyle(Theme.textSecondary)
                 } else {
                     Image(systemName: "sparkles")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(Theme.ember.opacity(0.8))
-                    Text("Aucune activité à afficher")
+                    Text(L.t("Aucune activité à afficher"))
                         .font(.label(12, weight: .semibold))
                         .foregroundStyle(Theme.text)
-                    Text(state.news.lastError ?? "Actualisez pour interroger les pull requests du dépôt.")
+                    Text(state.news.lastError ?? L.t("Actualisez pour interroger les pull requests du dépôt."))
                         .font(.label(9.5))
                         .foregroundStyle(Theme.textTertiary)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 420)
-                    GhostButton(title: "Réessayer", icon: "arrow.clockwise", compact: true) {
+                    GhostButton(title: L.t("Réessayer"), icon: "arrow.clockwise", compact: true) {
                         refresh(markSeen: false)
                     }
                 }
@@ -313,7 +313,7 @@ struct NewsView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(2)
             Spacer(minLength: 8)
-            GhostButton(title: "Réessayer", icon: "arrow.clockwise", compact: true) {
+            GhostButton(title: L.t("Réessayer"), icon: "arrow.clockwise", compact: true) {
                 refresh(markSeen: false)
             }
         }
@@ -333,11 +333,11 @@ struct NewsView: View {
         HStack(spacing: 6) {
             Image(systemName: "network")
                 .font(.system(size: 8.5, weight: .semibold))
-            Text("Données publiques de l'API GitHub · rien n'est envoyé depuis votre Mac")
+            Text(L.t("Données publiques de l'API GitHub · rien n'est envoyé depuis votre Mac"))
                 .font(.label(8.5))
             Spacer()
             if let date = state.news.lastSynced {
-                Text("dernière synchro \(relativeSync(date))")
+                Text(L.t("dernière synchro \(relativeSync(date))", "last sync \(relativeSync(date))"))
                     .font(.label(8.5))
                     .foregroundStyle(Theme.textTertiary)
             }
@@ -366,9 +366,9 @@ struct NewsView: View {
     }
 
     private func rateHelp(_ remaining: Int) -> String {
-        var text = "\(remaining) requête\(remaining == 1 ? "" : "s") GitHub restante\(remaining == 1 ? "" : "s")"
+        var text = L.t("\(remaining) requête\(remaining == 1 ? "" : "s") GitHub restante\(remaining == 1 ? "" : "s")", "\(remaining) GitHub request\(remaining == 1 ? "" : "s") left")
         if let reset = state.news.rateReset {
-            text += " · réinitialisation à \(Fmt.clock(reset))"
+            text += L.t(" · réinitialisation à \(Fmt.clock(reset))", " · resets at \(Fmt.clock(reset))")
         }
         return text
     }
@@ -381,7 +381,7 @@ struct NewsView: View {
     }
 
     private func relativeSync(_ date: Date) -> String {
-        Date().timeIntervalSince(date) < 45 ? "à l'instant" : Fmt.relative(date)
+        Date().timeIntervalSince(date) < 45 ? L.t("à l'instant") : Fmt.relative(date)
     }
 }
 
@@ -460,7 +460,7 @@ struct PullRequestCard: View {
                         Text(pr.user.login)
                             .font(.label(8.5, weight: .medium))
                             .foregroundStyle(Theme.textSecondary)
-                        Text("· mise à jour \(Fmt.relative(pr.updatedAt))")
+                        Text(L.t("· mise à jour \(Fmt.relative(pr.updatedAt))", "· updated \(Fmt.relative(pr.updatedAt))"))
                             .font(.label(8.5))
                             .foregroundStyle(Theme.textTertiary.opacity(0.8))
                         if !pr.labels.isEmpty {

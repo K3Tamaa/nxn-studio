@@ -210,7 +210,7 @@ struct Sidebar: View {
 
             Spacer().frame(height: 34)
 
-            Text("ESPACE DE TRAVAIL")
+            Text(L.t("ESPACE DE TRAVAIL"))
                 .font(.label(8.5, weight: .semibold))
                 .tracking(1.5)
                 .foregroundStyle(Theme.textTertiary.opacity(0.8))
@@ -245,7 +245,7 @@ struct Sidebar: View {
             RepoFooter()
                 .padding(.horizontal, 12)
 
-            Text("Client non officiel · v\(AppVersion.marketing)")
+            Text(L.t("Client non officiel", "Unofficial client") + " · v\(AppVersion.marketing)")
                 .font(.label(8.5))
                 .foregroundStyle(Theme.textTertiary.opacity(0.55))
                 .padding(.horizontal, 20)
@@ -357,7 +357,7 @@ struct BuildPulse: View {
                     }
                 }
                 .frame(height: 3)
-                Text(state.runner.currentStage?.name ?? "Démarrage…")
+                Text(state.runner.currentStage?.name ?? L.t("Démarrage…"))
                     .font(.label(9.5))
                     .foregroundStyle(Theme.textTertiary)
                     .lineLimit(1)
@@ -397,7 +397,7 @@ struct RepoFooter: View {
                     Text("nxnative")
                         .font(.label(10.5, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
-                    Text(state.repo.isValid ? "\(state.repo.gamesCount) profils · connecté" : "non configuré")
+                    Text(state.repo.isValid ? L.t("\(state.repo.gamesCount) profils · connecté", "\(state.repo.gamesCount) profiles · connected") : L.t("non configuré"))
                         .font(.label(8.5))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -420,7 +420,7 @@ struct RepoFooter: View {
         }
         .buttonStyle(.plain)
         .onHover { hover = $0 }
-        .help(state.repo.url?.path ?? "Configurer le checkout nxnative")
+        .help(state.repo.url?.path ?? L.t("Configurer le checkout nxnative"))
     }
 }
 

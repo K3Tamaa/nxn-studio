@@ -22,17 +22,17 @@ enum ThemeMode: String, CaseIterable, Codable, Identifiable {
 
     var title: String {
         switch self {
-        case .midnight: return "Nuit"
+        case .midnight: return L.t("Nuit", "Night")
         case .oled: return "OLED"
-        case .day: return "Jour"
+        case .day: return L.t("Jour", "Day")
         }
     }
 
     var detail: String {
         switch self {
-        case .midnight: return "Le thème d'origine"
-        case .oled: return "Noir absolu, pour les dalles OLED"
-        case .day: return "Surfaces claires"
+        case .midnight: return L.t("Le thème d'origine", "The original theme")
+        case .oled: return L.t("Noir absolu, pour les dalles OLED", "True black, for OLED panels")
+        case .day: return L.t("Surfaces claires", "Light surfaces")
         }
     }
 }
@@ -223,7 +223,7 @@ enum Fmt {
 
     static func relative(_ date: Date) -> String {
         let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "fr_FR")
+        f.locale = Locale(identifier: L.language == .fr ? "fr_FR" : "en_US")
         f.unitsStyle = .short
         return f.localizedString(for: date, relativeTo: Date())
     }

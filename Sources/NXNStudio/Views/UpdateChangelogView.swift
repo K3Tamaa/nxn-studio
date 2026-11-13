@@ -60,7 +60,7 @@ struct UpdateChangelogView: View {
             .padding(.top, 1)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(isRecent ? "Derniers commits" : "Mise à jour appliquée")
+                Text(isRecent ? "Derniers commits" : L.t("Mise à jour appliquée"))
                     .font(.label(7.5, weight: .bold))
                     .tracking(0.7)
                     .textCase(.uppercase)
@@ -71,8 +71,8 @@ struct UpdateChangelogView: View {
                         .font(.numeral(19, weight: .bold))
                         .foregroundStyle(Theme.text)
                     Text(isRecent
-                         ? (changelog.total > 1 ? "commits récents" : "commit récent")
-                         : (changelog.total > 1 ? "commits récupérés" : "commit récupéré"))
+                         ? (changelog.total > 1 ? L.t("commits récents") : L.t("commit récent"))
+                         : (changelog.total > 1 ? L.t("commits récupérés") : L.t("commit récupéré")))
                         .font(.label(11, weight: .medium))
                         .foregroundStyle(Theme.textSecondary)
                 }
@@ -244,21 +244,21 @@ struct UpdateChangelogView: View {
     private var footer: some View {
         HStack(spacing: 10) {
             Text(isRecent
-                 ? "\(changelog.commits.count) commits les plus récents"
+                 ? L.t("\(changelog.commits.count) commits les plus récents", "\(changelog.commits.count) most recent commits")
                  : (changelog.isTruncated
-                    ? "\(changelog.total - changelog.commits.count) commits plus anciens non listés"
-                    : "\(changelog.commits.count) commit\(changelog.commits.count > 1 ? "s" : "")"))
+                    ? L.t("\(changelog.total - changelog.commits.count) commits plus anciens non listés", "\(changelog.total - changelog.commits.count) older commits not listed")
+                    : L.t("\(changelog.commits.count) commit\(changelog.commits.count > 1 ? "s" : "")", "\(changelog.commits.count) commit\(changelog.commits.count > 1 ? "s" : "")")))
                 .font(.label(8.5))
                 .foregroundStyle(Theme.textTertiary)
             Spacer()
             if !isRecent {
                 Button(action: onClear) {
-                    Text("Effacer")
+                    Text(L.t("Effacer"))
                         .font(.label(8.5, weight: .medium))
                         .foregroundStyle(Theme.textTertiary)
                 }
                 .buttonStyle(.plain)
-                .help("Retirer l'historique de cette mise à jour")
+                .help(L.t("Retirer l'historique de cette mise à jour"))
             }
 
             Link(destination: sourceURL) {
@@ -301,7 +301,7 @@ struct UpdateChangelogView: View {
 
     private func label(_ kind: RepoChangelog.Commit.Kind) -> String {
         switch kind {
-        case .feature: return "nouveautés"
+        case .feature: return L.t("nouveautés")
         case .fix: return "correctifs"
         case .perf: return "performances"
         case .docs: return "docs"

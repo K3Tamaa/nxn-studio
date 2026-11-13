@@ -55,9 +55,9 @@ struct PullRequest: Codable, Identifiable, Hashable {
     }
 
     var stateLabel: String {
-        if isMerged { return "fusionnée" }
-        if isOpen { return draft == true ? "brouillon" : "ouverte" }
-        return "fermée"
+        if isMerged { return L.t("fusionnée", "merged") }
+        if isOpen { return draft == true ? L.t("brouillon", "draft") : L.t("ouverte", "open") }
+        return L.t("fermée", "closed")
     }
 
     var excerpt: String {

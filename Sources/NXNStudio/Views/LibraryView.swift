@@ -8,10 +8,10 @@ struct LibraryView: View {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .all: return "Tous"
-            case .switch1: return "Switch"
-            case .switch2: return "Switch 2"
-            case .installed: return "Installés"
+            case .all: return L.t("Tous")
+            case .switch1: return L.t("Switch", "Switch")
+            case .switch2: return L.t("Switch 2", "Switch 2")
+            case .installed: return L.t("Installés")
             }
         }
     }
@@ -47,19 +47,19 @@ struct LibraryView: View {
     private var content: some View {
         VStack(spacing: 0) {
             PageHeader(
-                title: "Bibliothèque",
+                title: L.t("Bibliothèque"),
                 subtitle: state.repo.isValid
-                    ? "\(state.games.count) profils de jeux · \(state.repo.url?.lastPathComponent ?? "nxnative")"
-                    : "Reliez votre checkout nxnative pour commencer"
+                    ? L.t("\(state.games.count) profils de jeux · \(state.repo.url?.lastPathComponent ?? "nxnative")", "\(state.games.count) game profiles · \(state.repo.url?.lastPathComponent ?? "nxnative")")
+                    : L.t("Reliez votre checkout nxnative pour commencer")
             ) {
                 HStack(spacing: 10) {
-                    SearchField(text: $query, placeholder: "Nom ou title ID")
+                    SearchField(text: $query, placeholder: L.t("Nom ou title ID", "Name or title ID"))
                     Button {
                         state.route = .build
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "plus").font(.system(size: 10, weight: .bold))
-                            Text("Nouvelle build").font(.label(11.5, weight: .semibold))
+                            Text(L.t("Nouvelle build")).font(.label(11.5, weight: .semibold))
                         }
                         .foregroundStyle(Theme.text)
                         .padding(.horizontal, 12)
@@ -86,7 +86,7 @@ struct LibraryView: View {
                             }
                         }
                         Spacer()
-                        Text("\(filtered.count) jeu\(filtered.count == 1 ? "" : "x")")
+                        Text(L.t("\(filtered.count) jeu\(filtered.count == 1 ? "" : "x")", "\(filtered.count) game\(filtered.count == 1 ? "" : "s")"))
                             .font(.label(10))
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -191,7 +191,7 @@ struct GameCard: View {
                                 .shadow(color: Theme.mint.opacity(0.4), radius: 8)
                         }
                         .buttonStyle(.plain)
-                        .help("Lancer la dernière app Mac")
+                        .help(L.t("Lancer la dernière app Mac"))
                         .padding(10)
                         .transition(.opacity)
                     }
@@ -244,16 +244,16 @@ struct GameCard: View {
         .onHover { hover = $0 }
         .animation(.easeOut(duration: 0.18), value: hover)
         .contextMenu {
-            Button("Configurer la build") { state.configure(game) }
+            Button(L.t("Configurer la build")) { state.configure(game) }
             if let record = installed {
                 Button("Lancer \(game.name)") { state.play(record) }
-                Button("Afficher dans le Finder") { if let path = record.outputPath { state.reveal(path) } }
+                Button(L.t("Afficher dans le Finder")) { if let path = record.outputPath { state.reveal(path) } }
             }
             Divider()
-            Button("Ouvrir la note du jeu") {
+            Button(L.t("Ouvrir la note du jeu")) {
                 NSWorkspace.shared.open(game.profileURL.appendingPathComponent("README.md"))
             }
-            Button("Afficher le profil") {
+            Button(L.t("Afficher le profil")) {
                 NSWorkspace.shared.activateFileViewerSelecting([game.profileURL])
             }
         }
@@ -279,7 +279,7 @@ struct RecentBuildBanner: View {
                 Text(record.name)
                     .font(.label(11.5, weight: .semibold))
                     .foregroundStyle(Theme.text)
-                Text("Dernière build · \(Fmt.relative(record.date)) · \(Fmt.duration(record.seconds)) · \(record.succeeded ? "réussie" : "échouée")")
+                Text(L.t("Dernière build · \(Fmt.relative(record.date)) · \(Fmt.duration(record.seconds)) · \(record.succeeded ? "réussie" : "échouée")", "Last build · \(Fmt.relative(record.date)) · \(Fmt.duration(record.seconds)) · \(record.succeeded ? "succeeded" : "failed")"))
                     .font(.label(9.5))
                     .foregroundStyle(Theme.textTertiary)
             }
@@ -289,7 +289,7 @@ struct RecentBuildBanner: View {
                     if let path = record.outputPath { state.reveal(path) }
                 }
                 if record.isApp {
-                    GhostButton(title: "Lancer", icon: "play.fill", tint: Theme.mint, compact: true) {
+                    GhostButton(title: L.t("Lancer"), icon: "play.fill", tint: Theme.mint, compact: true) {
                         state.play(record)
                     }
                 }
@@ -319,11 +319,11 @@ struct EmptyLibraryState: View {
             Image(systemName: "square.grid.2x2")
                 .font(.system(size: 24, weight: .light))
                 .foregroundStyle(Theme.textTertiary)
-            Text("Aucun jeu ne correspond")
+            Text(L.t("Aucun jeu ne correspond"))
                 .font(.label(13, weight: .medium))
                 .foregroundStyle(Theme.textSecondary)
             Text(query.isEmpty
-                 ? "Aucun profil dans cette catégorie."
+                 ? L.t("Aucun profil dans cette catégorie.")
                  : "Rien pour « \(query) » avec ce filtre.")
                 .font(.label(11))
                 .foregroundStyle(Theme.textTertiary)
