@@ -93,51 +93,7 @@ Le client ID reste dans les préférences, le secret dans le **Keychain**. Les v
 
 ![Visuels IGDB](docs/igdb.jpg)
 
-## Construire l'app
-
-```bash
-./scripts/package.sh
-```
-
-Le script compile en release, génère l'icône (dessinée par le code, `--make-icon`), assemble le bundle, le signe et écrit `dist/NXN Studio.app`, `dist/NXN Studio.dSYM` et `dist/NXN Studio <version>.dmg`.
-
-La version vient du fichier `VERSION` ; le numéro de build est horodaté (`BUILD_NUMBER` pour le forcer).
-
-### Signature Developer ID
-
-```bash
-DEVELOPER_ID="Developer ID Application: Ton Nom (TEAMID)" ./scripts/package.sh
-```
-
-Le script signe alors l'app avec l'entitlement *hardened runtime*.
-
-### Mises à jour gratuites (sans compte Apple)
-
-Aucune notarisation n'est nécessaire pour les mises à jour : le client lit un manifeste JSON hébergé avec les releases (GitHub Releases, page statique…), vérifie sa **signature Ed25519** et l'**empreinte SHA-256** du DMG, puis remplace l'app. Seule la *première* installation demande le contournement Gatekeeper décrit plus haut.
-
-1. Une seule fois, génère la paire de clés et garde la privée hors du dépôt :
-
-```bash
-"dist/NXN Studio.app/Contents/MacOS/NXNStudio" --gen-update-key
-```
-
-2. Incrémente `VERSION`, puis `./scripts/package.sh`.
-3. Construis le manifeste signé :
-
-```bash
-UPDATE_PRIVATE_KEY="<clé privée>" \
-  ./scripts/publish.sh "https://github.com/<toi>/<repo>/releases/download/vX.Y.Z"
-```
-
-Cela écrit `dist/latest.json` (version, URL, taille, SHA-256, signature Ed25519, notes) et rappelle la commande de packaging à utiliser.
-
-4. Publie le DMG **et** `latest.json`, puis reconstruis l'app en pointant le flux et la clé publique :
-
-```bash
-UPDATE_FEED="https://…/latest.json" \
-UPDATE_PUBLIC_KEY="<clé publique>" \
-./scripts/package.sh
-```
+### Mises à jour
 
 Dans l'app, **menu NXN Studio → Vérifier les mises à jour…** affiche une feuille avec les notes, **Télécharger le DMG** ou **Installer maintenant** (téléchargement, vérification de la signature, remplacement dans `Applications`, relance). Sans clé publique ou sans signature dans le manifeste, seule le téléchargement manuel est proposé.
 
