@@ -14,7 +14,7 @@ struct OnboardingView: View {
                 HStack(alignment: .top, spacing: 18) {
                     BrandMark(size: 58)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Reliez votre studio.")
+                        Text(L.t("Reliez votre studio.", "Connect your studio."))
                             .font(.display(32, weight: .semibold))
                             .trackingHeadline(-1)
                             .foregroundStyle(Theme.text)
@@ -66,7 +66,7 @@ struct OnboardingView: View {
                     PrimaryButton(title: L.t("Choisir le dossier nxnative"), icon: "folder.badge.plus") {
                         state.chooseRepo()
                     }
-                    GhostButton(title: "Choisir prod.keys", icon: "key") {
+                    GhostButton(title: L.t("Choisir prod.keys", "Choose prod.keys"), icon: "key") {
                         state.chooseKeys()
                     }
                 }

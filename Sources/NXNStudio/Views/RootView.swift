@@ -339,7 +339,7 @@ struct BuildPulse: View {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(spacing: 6) {
                     StatusDot(color: Theme.ember, size: 6, pulsing: true)
-                    Text("BUILD EN COURS")
+                    Text(L.t("BUILD EN COURS", "BUILD RUNNING"))
                         .font(.label(8, weight: .bold))
                         .tracking(1.1)
                         .foregroundStyle(Theme.emberSoft)

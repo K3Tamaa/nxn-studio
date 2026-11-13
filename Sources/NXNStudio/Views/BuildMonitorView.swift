@@ -76,7 +76,7 @@ struct BuildMonitorView: View {
                 }
             }
 
-            GhostButton(title: "Commande", icon: "terminal") {
+            GhostButton(title: L.t("Commande", "Command"), icon: "terminal") {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(BuildRunner.prettyCommand(runner.command), forType: .string)
             }
@@ -142,7 +142,7 @@ struct BuildMonitorView: View {
 
                         if runner.totalN > 0 {
                             HStack(spacing: 4) {
-                                Text("Étape")
+                                Text(L.t("Étape", "Stage"))
                                     .font(.label(8.5))
                                     .foregroundStyle(Theme.textTertiary)
                                 Text("\(min(runner.currentK, runner.totalN))")
@@ -156,9 +156,9 @@ struct BuildMonitorView: View {
 
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             HStack(spacing: 9) {
-                                stat(label: "TEMPS", value: Fmt.duration(elapsed(at: context.date)))
+                                stat(label: L.t("TEMPS", "TIME"), value: Fmt.duration(elapsed(at: context.date)))
                                 if let eta = runner.currentStage?.eta, running {
-                                    stat(label: "RESTE", value: Fmt.duration(eta))
+                                    stat(label: L.t("RESTE", "LEFT"), value: Fmt.duration(eta))
                                 }
                             }
                         }
@@ -322,8 +322,8 @@ struct BuildMonitorView: View {
                 Hairline()
 
                 VStack(spacing: 9) {
-                    DataRow(label: "Cible", value: state.draft.platform.title)
-                    DataRow(label: "Source",
+                    DataRow(label: L.t("Cible", "Target"), value: state.draft.platform.title)
+                    DataRow(label: L.t("Source", "Source"),
                             value: state.draft.sourceURL?.lastPathComponent ?? runner.gameName ?? "—",
                             mono: true)
                     if let version = runner.artifact.version, !version.isEmpty {
@@ -332,8 +332,8 @@ struct BuildMonitorView: View {
                     if let bundle = runner.artifact.bundleID, !bundle.isEmpty {
                         DataRow(label: "Bundle ID", value: bundle, mono: true)
                     }
-                    DataRow(label: "Sortie",
-                            value: runner.artifact.outPath.map { ($0 as NSString).lastPathComponent } ?? "automatique",
+                    DataRow(label: L.t("Sortie", "Output"),
+                            value: runner.artifact.outPath.map { ($0 as NSString).lastPathComponent } ?? L.t("automatique", "automatic"),
                             mono: (runner.artifact.outPath != nil))
                 }
                 .padding(.horizontal, 14)

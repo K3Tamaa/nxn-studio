@@ -3,7 +3,9 @@ import Foundation
 /// Single source for what the About panel and the bundle display.
 enum AppVersion {
     static var marketing: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            ?? ProcessInfo.processInfo.environment["NXN_VERSION"]
+            ?? "dev"
     }
 
     static var build: String {

@@ -263,7 +263,7 @@ struct UpdateChangelogView: View {
 
             Link(destination: sourceURL) {
                 HStack(spacing: 4) {
-                    Text(isRecent ? "GitHub" : "Comparer")
+                    Text(isRecent ? "GitHub" : L.t("Comparer", "Compare"))
                         .font(.label(9, weight: .semibold))
                     Image(systemName: "arrow.up.right")
                         .font(.system(size: 8, weight: .bold))
@@ -302,10 +302,10 @@ struct UpdateChangelogView: View {
     private func label(_ kind: RepoChangelog.Commit.Kind) -> String {
         switch kind {
         case .feature: return L.t("nouveautés")
-        case .fix: return "correctifs"
-        case .perf: return "performances"
-        case .docs: return "docs"
-        case .other: return "autres"
+        case .fix: return L.t("correctifs", "fixes")
+        case .perf: return L.t("performances", "performance")
+        case .docs: return L.t("docs", "docs")
+        case .other: return L.t("autres", "other")
         }
     }
 }
@@ -316,18 +316,18 @@ struct UpdateChangelogView: View {
 extension RepoChangelog {
     static var demo: RepoChangelog {
         let samples = [
-            ("6c676444", "A pool texture the walk leaves out holds a stand-in of its own colours until its first read: Ocarina of Time's streamed scenery no longer draws dark for one frame", "seedds", "il y a 1 h"),
-            ("6d9edb07", "A texture ID a shader has read keeps its read mark when the game puts another texture into it, and loses it only when emptied", "seedds", "il y a 1 h"),
-            ("bbea4c90", "A GPU copy into a texture uploaded from its storage no longer uploads all of it again: Star Fox's 7-10 s frames at its prologue's scene changes", "lunks", "il y a 2 h"),
-            ("5e1c1aec", "Whether a vertex shader writes the layer is in its reflection: Ocarina of Time's 230 ms camera-turn hitch goes to 39 ms", "seedds", "il y a 2 h"),
-            ("12a44e09", "The uniform copy thread hands off without a mutex, and a shadow overlay writes into its own layer", "uncraftablexd", "il y a 2 h"),
-            ("804809c6", "Hades II registers its update 1.0.141667 (v655360, SDK 20.5.15)", "seedds", "il y a 2 h"),
-            ("b84ee29a", "Hades II renders at up to 3840x2160: its render scale goes from 0.5 to 3.0", "seedds", "il y a 3 h"),
-            ("d4cc0eee", "An sRGB texture in an image slot is loaded and stored raw, as on NVN: Star Fox's picture was encoded twice", "lunks", "il y a 3 h"),
-            ("a888e668", "Switch 2 pixel shaders honour their early fragment tests flag: PRAGMATA's GPU frame time 19.0 to 16.6 ms", "uncraftablexd", "il y a 3 h"),
-            ("6f50de00", "The pool walk's statistics no longer make a chunk of a large pool for every texture they ask about", "seedds", "il y a 3 h"),
-            ("dbf84998", "Ocarina of Time's prewarm list gets 41 more task and mesh pipelines from later play", "seedds", "il y a 4 h"),
-            ("b54968e7", "A snapshot of an attachment lands a clear still waiting for the draw's pass before it copies", "Xipzer", "il y a 4 h"),
+            ("6c676444", "A pool texture the walk leaves out holds a stand-in of its own colours until its first read: Ocarina of Time's streamed scenery no longer draws dark for one frame", "seedds", "1 hr ago"),
+            ("6d9edb07", "A texture ID a shader has read keeps its read mark when the game puts another texture into it, and loses it only when emptied", "seedds", "1 hr ago"),
+            ("bbea4c90", "A GPU copy into a texture uploaded from its storage no longer uploads all of it again: Star Fox's 7-10 s frames at its prologue's scene changes", "lunks", "2 hr ago"),
+            ("5e1c1aec", "Whether a vertex shader writes the layer is in its reflection: Ocarina of Time's 230 ms camera-turn hitch goes to 39 ms", "seedds", "2 hr ago"),
+            ("12a44e09", "The uniform copy thread hands off without a mutex, and a shadow overlay writes into its own layer", "uncraftablexd", "2 hr ago"),
+            ("804809c6", "Hades II registers its update 1.0.141667 (v655360, SDK 20.5.15)", "seedds", "2 hr ago"),
+            ("b84ee29a", "Hades II renders at up to 3840x2160: its render scale goes from 0.5 to 3.0", "seedds", "3 hr ago"),
+            ("d4cc0eee", "An sRGB texture in an image slot is loaded and stored raw, as on NVN: Star Fox's picture was encoded twice", "lunks", "3 hr ago"),
+            ("a888e668", "Switch 2 pixel shaders honour their early fragment tests flag: PRAGMATA's GPU frame time 19.0 to 16.6 ms", "uncraftablexd", "3 hr ago"),
+            ("6f50de00", "The pool walk's statistics no longer make a chunk of a large pool for every texture they ask about", "seedds", "3 hr ago"),
+            ("dbf84998", "Ocarina of Time's prewarm list gets 41 more task and mesh pipelines from later play", "seedds", "4 hr ago"),
+            ("b54968e7", "A snapshot of an attachment lands a clear still waiting for the draw's pass before it copies", "Xipzer", "4 hr ago"),
         ]
         let commits = samples.map { sample in
             Commit(
@@ -364,6 +364,7 @@ extension RepoChangelog {
 enum ChangelogSnapshot {
     @MainActor
     static func render(path: String, recent: Bool = false) {
+        L.language = .en
         let changelog: RepoChangelog = recent ? .demoRecent : .demo
         let view = UpdateChangelogView(changelog: changelog, onClose: {}, onClear: {}, previewRows: true)
             .background(Theme.canvas)

@@ -197,6 +197,7 @@ struct UpdateSheetView: View {
 enum UpdateSnapshot {
     @MainActor
     static func render(path: String) {
+        L.language = .en
         let manifest = UpdateManifest(
             version: "1.2.0",
             build: "202612011200",

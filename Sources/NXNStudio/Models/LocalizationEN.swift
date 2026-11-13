@@ -180,5 +180,10 @@ extension L {
         "prod.keys manquant": "prod.keys missing",
         "Analyse…": "Scanning…",
         "Actualisation…": "Refreshing…",
+        "correctifs": "fixes",
+        "performances": "performance",
+        "autres": "other",
+        "optionnel": "optional",
+        "Journal d'installation": "Install log",
     ]
 }

@@ -530,8 +530,8 @@ struct SettingsView: View {
 
     private var artworkSummary: String {
         let count = state.artworks.count
-        if count == 0 { return "aucun visuel en cache" }
-        return "\(count) visuel\(count > 1 ? "s" : "") en cache"
+        if count == 0 { return L.t("aucun visuel en cache", "no artwork cached") }
+        return L.t("\(count) visuel\(count > 1 ? "s" : "") en cache", "\(count) artwork item\(count > 1 ? "s" : "") cached")
     }
 
     private func saveCredentials() {
@@ -895,7 +895,7 @@ struct SettingsView: View {
                 Image(systemName: "terminal")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(installer.lastFailure == nil ? Theme.emberSoft : Theme.warning)
-                Text("Journal d'installation")
+                Text(L.t("Journal d'installation", "Install log"))
                     .font(.label(9.5, weight: .semibold))
                     .foregroundStyle(Theme.textSecondary)
                 Spacer()
@@ -1159,7 +1159,7 @@ struct CheckRow: View {
                         .font(.label(10.5, weight: .medium))
                         .foregroundStyle(Theme.textSecondary)
                     if !check.required {
-                        Text("optionnel")
+                        Text(L.t("optionnel", "optional"))
                             .font(.label(7.5, weight: .semibold))
                             .tracking(0.4)
                             .foregroundStyle(Theme.textTertiary)
@@ -1181,7 +1181,7 @@ struct CheckRow: View {
                         .textSelection(.enabled)
                 }
                 if case .failed(let message)? = installResult {
-                    Text("Échec : \(message)")
+                    Text(L.t("Échec : \(message)", "Failed: \(message)"))
                         .font(.mono(8.5))
                         .foregroundStyle(Theme.danger.opacity(0.85))
                         .lineLimit(2)

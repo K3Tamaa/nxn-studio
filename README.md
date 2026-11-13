@@ -5,6 +5,7 @@
 Native macOS client (SwiftUI) for [seedds/nxnative](https://github.com/seedds/nxnative): turn a folder of Switch games into a **Mac app** or an **IPA**, without the command line — with a profile library, live build tracking, dependency installation, checkout updates and a pull-request feed.
 
 ![Library](docs/library.jpg)
+![Launcher](docs/launcher.jpg)
 
 ## What it does
 

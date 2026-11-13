@@ -73,7 +73,7 @@ enum InstallCatalog {
         ),
         InstallStep(
             id: "metal",
-            title: "Compilateur Metal",
+            title: L.t("Compilateur Metal", "Metal compiler"),
             command: ["xcodebuild", "-downloadComponent", "MetalToolchain"],
             note: "Téléchargement du composant Metal Toolchain."
         ),
@@ -148,7 +148,7 @@ final class DependencyInstaller: ObservableObject {
                 LogLine(text: "✓ XcodeGen installé", kind: .success),
                 LogLine(text: "$ xcodebuild -downloadComponent MetalToolchain", kind: .command),
                 LogLine(text: "Downloading Metal Toolchain…", kind: .output),
-                LogLine(text: "✕ Compilateur Metal : Error: Download failed (code 1)", kind: .failure),
+                LogLine(text: "✕ Metal compiler : Error: Download failed (code 1)", kind: .failure),
             ]
             batchCount = 5
             batchDone = 3

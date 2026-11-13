@@ -15,7 +15,7 @@ enum BuildPhase: Equatable {
     var label: String {
         switch self {
         case .idle: return "Prête"
-        case .running: return "Build en cours"
+        case .running: return L.t("Build en cours", "Build running")
         case .succeeded: return "Terminée"
         case .failed: return "Échec"
         case .cancelled: return "Annulée"
@@ -363,7 +363,7 @@ final class BuildRunner: ObservableObject {
 
         switch ev {
         case "stage":
-            let name = event["name"] as? String ?? "Étape \(k)"
+            let name = event["name"] as? String ?? L.t("Étape \(k)", "Step \(k)")
             let step = event["step"] as? String ?? ""
             if let n = event["n"] as? Int { totalN = n }
             if k > 0 { currentK = k }
@@ -446,7 +446,7 @@ final class BuildRunner: ObservableObject {
 
         case "shaders_stale":
             let count = event["count"] as? Int ?? 0
-            appendLog("⚠ Bibliothèques de shaders à reconstruire (\(count) bibliothèques)", kind: .warning, stamp: true)
+            appendLog(L.t("⚠ Bibliothèques de shaders à reconstruire (\(count) bibliothèques)", "⚠ Shader libraries to rebuild (\(count) libraries)"), kind: .warning, stamp: true)
 
         case "game":
             artifact = BuildArtifact(
@@ -577,9 +577,9 @@ final class BuildRunner: ObservableObject {
 
         stages = [
             BuildStage(id: 1, name: "extract MarioKartWorld", done: 9.03e9, total: 9.03e9, unit: "B",
-                       frac: 1, elapsed: 142, state: .done, summary: "18 214 fichiers, 8.4 Go"),
+                       frac: 1, elapsed: 142, state: .done, summary: "18,214 files, 8.4 GB"),
             BuildStage(id: 2, name: "survey / profile", step: "shader split",
-                       frac: 1, elapsed: 561, state: .done, summary: "6 132 shaders → 1 402 bibliothèques"),
+                       frac: 1, elapsed: 561, state: .done, summary: "6,132 shaders → 1,402 libraries"),
             BuildStage(id: 3, name: "rewrite modules", step: "census",
                        frac: 1, elapsed: 32, state: .done, summary: "4 modules, 2 318 sites"),
             BuildStage(id: 4, name: "build shader libraries", step: "compiling 4 112 / 6 132",
@@ -594,19 +594,19 @@ final class BuildRunner: ObservableObject {
         currentStage = stages[3]
 
         let samples: [(String, String, LogKind)] = [
-            ("17:42:06", "Build de Mario Kart World · App Mac", .info),
+            ("17:42:06", "Build of Mario Kart World · Mac app", .info),
             ("17:42:06", "$ /usr/bin/env python3 scripts/build_ipa_from_nsp.py ~/Games/MarioKartWorld --platform mac-app", .dim),
             ("17:42:09", "[1/9] extract MarioKartWorld", .stage),
-            ("17:44:31", "✓ extract MarioKartWorld · 2:22 — 18 214 fichiers, 8.4 Go", .success),
+            ("17:44:31", "✓ extract MarioKartWorld · 2:22 — 18,214 files, 8.4 GB", .success),
             ("17:44:31", "[2/9] survey / profile · shader split", .stage),
             ("17:44:33", "  ↳ reading Shader/*.Nin_Ounce_NVN2.bfsha.zs", .dim),
-            ("17:53:52", "✓ shader split · 9:21 — 6 132 shaders → 1 402 bibliothèques", .success),
+            ("17:53:52", "✓ shader split · 9:21 — 6,132 shaders → 1,402 libraries", .success),
             ("17:53:52", "[3/9] rewrite modules · census", .stage),
             ("17:54:24", "✓ rewrite modules · 0:32 — 4 modules, 2 318 sites", .success),
             ("17:54:24", "[4/9] build shader libraries · compiling 4 112 / 6 132", .stage),
-            ("17:54:25", "  ↳ Metal 4 · g14s · cache chaud", .dim),
-            ("17:54:25", "les bibliothèques de shaders de la chaîne précédente sont réutilisées", .info),
-            ("17:56:30", "bibliothèque 1 402/1 402 · 1.9/~3.0 Go", .info),
+            ("17:54:25", "  ↳ Metal 4 · g14s · warm cache", .dim),
+            ("17:54:25", "shader libraries from the previous chain are reused", .info),
+            ("17:56:30", "library 1,402/1,402 · 1.9/~3.0 GB", .info),
         ]
         log = samples.map { LogLine(time: $0.0, text: $0.1, kind: $0.2) }
         command = ["python3", "scripts/build_ipa_from_nsp.py", "~/Games/MarioKartWorld", "--platform", "mac-app", "--progress", "json"]

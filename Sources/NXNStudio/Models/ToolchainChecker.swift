@@ -79,18 +79,18 @@ final class ToolchainChecker: ObservableObject {
         ToolCheck(id: "git", label: "git", detail: "git version 2.51.0", state: .ok),
         ToolCheck(id: "python", label: L.t("Python 3.12+", "Python 3.12+"), detail: "Python 3.15.2", state: .ok),
         ToolCheck(id: "modules", label: L.t("Modules Python", "Python modules"),
-                  detail: "lz4, capstone, fonttools manquants", state: .missing,
+                  detail: "missing lz4, capstone, fonttools", state: .missing,
                   hint: "python3 -m pip install lz4 \"capstone>=5,<6\" fonttools nsz zbic"),
         ToolCheck(id: "xcode", label: "Xcode", detail: "Xcode 27.2", state: .ok),
         ToolCheck(id: "ios-sdk", label: "SDK iOS", detail: "absent", state: .missing,
-                  hint: "Xcode → Settings → Components → installez la plateforme iOS."),
-        ToolCheck(id: "metal", label: L.t("Compilateur Metal", "Metal compiler"), detail: "toolchain Metal absent",
+                  hint: "Xcode → Settings → Components → install the iOS platform."),
+        ToolCheck(id: "metal", label: L.t("Compilateur Metal", "Metal compiler"), detail: "Metal toolchain missing",
                   state: .missing, hint: "xcodebuild -downloadComponent MetalToolchain"),
-        ToolCheck(id: "xcodegen", label: "XcodeGen", detail: "introuvable", state: .missing,
+        ToolCheck(id: "xcodegen", label: "XcodeGen", detail: "not found", state: .missing,
                   hint: "brew install xcodegen"),
         ToolCheck(id: "zstd", label: "zstd", detail: "*** Zstandard CLI v1.5.7 ***", state: .ok),
         ToolCheck(id: "dotnet", label: L.t(".NET SDK", ".NET SDK"), detail: "SDK 10.0.403", state: .ok),
-        ToolCheck(id: "glslang", label: "glslang", detail: "introuvable (jeux Vulkan / OpenGL)",
+        ToolCheck(id: "glslang", label: "glslang", detail: "not found (Vulkan / OpenGL games)",
                   state: .warn, hint: "brew install glslang", required: false),
     ]
     #endif
@@ -113,7 +113,7 @@ final class ToolchainChecker: ObservableObject {
             }
             results.append(ToolCheck(
                 id: "brew", label: L.t("Homebrew", "Homebrew"),
-                detail: brew ?? "introuvable",
+                detail: brew ?? "not found",
                 state: brew == nil ? .missing : .ok,
                 hint: "Homebrew installe Python, XcodeGen, zstd et glslang.",
                 required: true
@@ -136,7 +136,7 @@ final class ToolchainChecker: ObservableObject {
             let recent = parts.count >= 2 && (parts[0] > 3 || (parts[0] == 3 && parts[1] >= 12))
             results.append(ToolCheck(
                 id: "python", label: L.t("Python 3.12+", "Python 3.12+"),
-                detail: version.isEmpty ? "introuvable" : version,
+                detail: version.isEmpty ? "not found" : version,
                 state: python.code == 0 && recent ? .ok : (python.code == 0 ? .warn : .missing),
                 hint: "Installez Python 3.12 arm64 (pas celui de Homebrew Intel)."
             ))
@@ -149,14 +149,14 @@ final class ToolchainChecker: ObservableObject {
             let moduleDetail = modules.output.trimmingCharacters(in: .whitespacesAndNewlines)
             results.append(ToolCheck(
                 id: "modules", label: L.t("Modules Python", "Python modules"),
-                detail: modules.code == 0 ? moduleDetail : "lz4, capstone, fonttools manquants",
+                detail: modules.code == 0 ? moduleDetail : "missing lz4, capstone, fonttools",
                 state: modules.code == 0 ? .ok : .missing,
                 hint: "python3 -m pip install lz4 \"capstone>=5,<6\" fonttools nsz zbic"
             ))
 
             // 4. Xcode
             let xcode = shell("/usr/bin/xcodebuild", ["-version"])
-            let xcodeDetail = xcode.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
+            let xcodeDetail = xcode.output.split(separator: "\n").first.map(String.init) ?? "not found"
             results.append(ToolCheck(
                 id: "xcode", label: "Xcode",
                 detail: xcodeDetail,
@@ -171,15 +171,15 @@ final class ToolchainChecker: ObservableObject {
                 id: "ios-sdk", label: "SDK iOS",
                 detail: iosSdk.code == 0 && !iosDetail.isEmpty ? "version \(iosDetail)" : "absent",
                 state: iosSdk.code == 0 && !iosDetail.isEmpty ? .ok : .missing,
-                hint: "Xcode → Settings → Components → installez la plateforme iOS."
+                hint: "Xcode → Settings → Components → install the iOS platform."
             ))
 
             // 5. Metal compiler
             let metal = shell("/usr/bin/xcrun", ["-sdk", "macosx", "metal", "--version"])
-            let metalDetail = metal.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
+            let metalDetail = metal.output.split(separator: "\n").first.map(String.init) ?? "not found"
             results.append(ToolCheck(
                 id: "metal", label: L.t("Compilateur Metal", "Metal compiler"),
-                detail: metal.code == 0 ? metalDetail : "toolchain Metal absent",
+                detail: metal.code == 0 ? metalDetail : "Metal toolchain missing",
                 state: metal.code == 0 ? .ok : .missing,
                 hint: "xcodebuild -downloadComponent MetalToolchain"
             ))
@@ -188,30 +188,30 @@ final class ToolchainChecker: ObservableObject {
             let xcodegen = shell("/usr/bin/env", ["xcodegen", "--version"])
             let xcodegenDetail = xcodegen.output.split(separator: "\n").first
                 .map { $0.replacingOccurrences(of: "Version:", with: "")
-                        .trimmingCharacters(in: .whitespaces) } ?? "introuvable"
+                        .trimmingCharacters(in: .whitespaces) } ?? "not found"
             results.append(ToolCheck(
                 id: "xcodegen", label: "XcodeGen",
-                detail: xcodegen.code == 0 ? xcodegenDetail : "introuvable",
+                detail: xcodegen.code == 0 ? xcodegenDetail : "not found",
                 state: xcodegen.code == 0 ? .ok : .missing,
                 hint: "brew install xcodegen"
             ))
 
             // 7. zstd
             let zstd = shell("/usr/bin/env", ["zstd", "--version"])
-            let zstdDetail = zstd.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
+            let zstdDetail = zstd.output.split(separator: "\n").first.map(String.init) ?? "not found"
             results.append(ToolCheck(
                 id: "zstd", label: "zstd",
-                detail: zstd.code == 0 ? zstdDetail : "introuvable",
+                detail: zstd.code == 0 ? zstdDetail : "not found",
                 state: zstd.code == 0 ? .ok : .missing,
                 hint: "brew install zstd"
             ))
 
             // 8. .NET
             let dotnet = shell("/usr/bin/env", ["dotnet", "--version"])
-            let dotnetDetail = dotnet.output.split(separator: "\n").first.map(String.init) ?? "introuvable"
+            let dotnetDetail = dotnet.output.split(separator: "\n").first.map(String.init) ?? "not found"
             results.append(ToolCheck(
                 id: "dotnet", label: L.t(".NET SDK", ".NET SDK"),
-                detail: dotnet.code == 0 ? "SDK \(dotnetDetail)" : "introuvable",
+                detail: dotnet.code == 0 ? "SDK \(dotnetDetail)" : "not found",
                 state: dotnet.code == 0 ? .ok : .missing,
                 hint: "brew install --cask dotnet-sdk"
             ))
@@ -220,10 +220,10 @@ final class ToolchainChecker: ObservableObject {
             let glslang = shell("/usr/bin/env", ["glslangValidator", "--version"])
             let glslangDetail = glslang.output.split(separator: "\n").first
                 .map { $0.replacingOccurrences(of: "Glslang Version:", with: "")
-                        .trimmingCharacters(in: .whitespaces) } ?? "introuvable"
+                        .trimmingCharacters(in: .whitespaces) } ?? "not found"
             results.append(ToolCheck(
                 id: "glslang", label: "glslang",
-                detail: glslang.code == 0 ? glslangDetail : "introuvable (jeux Vulkan / OpenGL)",
+                detail: glslang.code == 0 ? glslangDetail : "not found (Vulkan / OpenGL games)",
                 state: glslang.code == 0 ? .ok : .warn,
                 hint: "brew install glslang",
                 required: false
