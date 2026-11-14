@@ -24,6 +24,8 @@ final class OutputCollector: @unchecked Sendable {
     private let lock = NSLock()
     private var buffer = [UInt8]()
     private var collected = ""
+    /// Keeps the tail of the stream: logs are for reading, not archiving.
+    private static let maxCollectedBytes = 2 * 1024 * 1024
     private let onLine: (@Sendable (String) -> Void)?
 
     init(onLine: (@Sendable (String) -> Void)? = nil) {
@@ -70,6 +72,9 @@ final class OutputCollector: @unchecked Sendable {
         let line = String(decoding: bytes, as: UTF8.self)
         guard !line.isEmpty else { return }
         collected += line + "\n"
+        if collected.utf8.count > Self.maxCollectedBytes {
+            collected = String(collected.suffix(Self.maxCollectedBytes))
+        }
         onLine?(line)
     }
 }
@@ -84,6 +89,7 @@ enum ShellRunner {
         in directory: URL? = nil,
         extraEnvironment: [String: String] = [:],
         onLaunch: (@Sendable (Int32) -> Void)? = nil,
+        onProcess: (@Sendable (Process) -> Void)? = nil,
         onLine: (@Sendable (String) -> Void)? = nil
     ) async -> ShellResult {
         guard let executable = command.first else {
@@ -119,6 +125,7 @@ enum ShellRunner {
         do {
             try process.run()
             onLaunch?(process.processIdentifier)
+            onProcess?(process)
         } catch {
             errCollector.feed(Data("Impossible de lancer \(executable): \(error.localizedDescription)".utf8))
             errCollector.finish()
@@ -171,13 +178,35 @@ enum ShellRunner {
         } catch {
             return ShellResult(code: 127, errorText: error.localizedDescription)
         }
-        let outData = out.fileHandleForReading.readDataToEndOfFile()
-        let errData = err.fileHandleForReading.readDataToEndOfFile()
+        // Drain both pipes concurrently: reading one to EOF while the other
+        // fills its buffer would deadlock the child.
+        final class Box: @unchecked Sendable {
+            let lock = NSLock()
+            var data = Data()
+            func store(_ value: Data) { lock.lock(); data = value; lock.unlock() }
+            var value: Data { lock.lock(); defer { lock.unlock() }; return data }
+        }
+        let outs = Box()
+        let errs = Box()
+        let group = DispatchGroup()
+        let outHandle = out.fileHandleForReading
+        let errHandle = err.fileHandleForReading
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            outs.store(outHandle.readDataToEndOfFile())
+            group.leave()
+        }
+        group.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            errs.store(errHandle.readDataToEndOfFile())
+            group.leave()
+        }
         process.waitUntilExit()
+        group.wait()
         return ShellResult(
             code: process.terminationStatus,
-            output: String(decoding: outData, as: UTF8.self),
-            errorText: String(decoding: errData, as: UTF8.self)
+            output: String(decoding: outs.value, as: UTF8.self),
+            errorText: String(decoding: errs.value, as: UTF8.self)
         )
     }
 

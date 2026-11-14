@@ -2,6 +2,20 @@
 
 [English](CHANGELOG.md) · **Français**
 
+## 1.5.0
+
+Passe de sécurité et de robustesse :
+
+- Installateur Homebrew figé sur un commit révisé avec vérification SHA-256, lancé depuis Terminal en utilisateur (plus d'invite admin dans l'app).
+- Mises à jour atomiques (`.new`/`.old` avec restauration), contrôle du bundle ID, arguments shell positionnels, téléchargements limités à GitHub.
+- Scripts de release : confirmation avant commit, plus de tag ni de push forcé, pas d'écrasement de release, clé privée via stdin, `chmod 600`.
+- Identifiants IGDB dans le corps de la requête, erreurs Keychain remontées, limites de type et de taille des images.
+- Processus : arbre complet à la fermeture, drainage parallèle des pipes, journal plafonné à 2 Mo, annulation via `Process.isRunning`.
+- Commandes git neutralisant hooks et fsmonitor ; détection automatique du dépôt dans `~` supprimée.
+- Python résolu en chemin absolu ; staging qui conserve l'extraction et vérifie l'espace sur son volume.
+- Launcher limité aux bundles `org.nxnative.<16 hex>`, icônes chargées sur le thread principal.
+- Flags de développement compilés uniquement en debug.
+
 ## 1.4.0
 
 - Interface entièrement en anglais (par défaut), français commutable dans Apparence ; textes variables et états de PR suivent la langue.

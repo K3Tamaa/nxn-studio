@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var showChangelog = false
     @State private var igdbClientID = ""
     @State private var igdbSecret = ""
+    @State private var secretError: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -449,6 +450,11 @@ struct SettingsView: View {
                 .foregroundStyle(state.artworks.hasSecret ? Theme.mint.opacity(0.8) : Theme.textTertiary)
             }
 
+            if let secretError {
+                Text(secretError)
+                    .font(.label(8))
+                    .foregroundStyle(Theme.danger)
+            }
             Text(L.t("dev.twitch.tv/console → Applications → votre app. Le client ID reste en préférences, le secret va dans le Keychain.", "dev.twitch.tv/console → Applications → your app. The client ID stays in preferences, the secret goes to the Keychain."))
                 .font(.label(8))
                 .foregroundStyle(Theme.textTertiary.opacity(0.85))
@@ -538,8 +544,12 @@ struct SettingsView: View {
         state.artworks.clientID = igdbClientID.trimmingCharacters(in: .whitespaces)
         let secret = igdbSecret.trimmingCharacters(in: .whitespaces)
         if !secret.isEmpty {
-            state.artworks.saveSecret(secret)
-            igdbSecret = ""
+            if state.artworks.saveSecret(secret) {
+                igdbSecret = ""
+                secretError = nil
+            } else {
+                secretError = L.t("Le secret n'a pas pu être écrit dans le Keychain.", "The secret could not be written to the Keychain.")
+            }
         }
     }
 

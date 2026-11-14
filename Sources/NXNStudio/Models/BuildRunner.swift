@@ -143,8 +143,8 @@ final class BuildRunner: ObservableObject {
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.process?.isRunning == true else { return }
-                if let pid = self.process?.processIdentifier { kill(pid, SIGINT) }
+                guard let self, let process = self.process, process.isRunning else { return }
+                ProcessTree.terminate(pid: process.processIdentifier)
             }
         }
     }
@@ -157,16 +157,6 @@ final class BuildRunner: ObservableObject {
         let expandedSource = (options.sourcePath as NSString).expandingTildeInPath
         let script = repo.appendingPathComponent("scripts/build_ipa_from_nsp.py")
 
-        // The extracted game and the packaged app need room; stop before the
-        // pipeline starts rather than half-way through.
-        let requiredGB = options.romfsSeparate ? 6.0 : 12.0
-        if let free = Self.freeSpace(at: repo), free < requiredGB * 1_073_741_824 {
-            phase = .failed("Espace disque insuffisant : \(ByteCountFormatter.string(fromByteCount: Int64(free), countStyle: .file)) libres, \(Int(requiredGB)) Go recommandés.")
-            lastError = "Espace disque insuffisant pour ce build."
-            finishedAt = Date()
-            return
-        }
-
         // The script packs a game from a folder of NSPs (or a dump / NUP).
         // When the user picked a single package file, stage it alone in a
         // temporary folder so no other NSP on the Desktop is picked up.
@@ -175,14 +165,32 @@ final class BuildRunner: ObservableObject {
         let isPackageFile = sourceURL.isFileURL
             && packageExtensions.contains(sourceURL.pathExtension.lowercased())
 
+        // The extracted game and the packaged app need room; stop before the
+        // pipeline starts rather than half-way through. Check the volume that
+        // will actually hold the extraction (the staging folder for package
+        // files, the repository otherwise).
+        let requiredGB = options.romfsSeparate ? 6.0 : 12.0
+        let spaceTarget = isPackageFile ? Self.stagingFolder(for: sourceURL) : repo
+        if let free = Self.freeSpace(at: spaceTarget), free < requiredGB * 1_073_741_824 {
+            phase = .failed("Espace disque insuffisant : \(ByteCountFormatter.string(fromByteCount: Int64(free), countStyle: .file)) libres, \(Int(requiredGB)) Go recommandés.")
+            lastError = "Espace disque insuffisant pour ce build."
+            finishedAt = Date()
+            return
+        }
+
         var packArgument = expandedSource
         if isPackageFile {
             // Stable staging folder: the extracted files stay cached between
             // builds, and the folder holds this package alone.
             let stage = Self.stagingFolder(for: sourceURL)
             try? FileManager.default.createDirectory(at: stage, withIntermediateDirectories: true)
-            for link in (try? FileManager.default.contentsOfDirectory(at: stage, includingPropertiesForKeys: nil)) ?? [] {
-                try? FileManager.default.removeItem(at: link)
+            // Only the stale links are removed: the extracted files in
+            // `<title>_build` stay cached between builds.
+            let entries = (try? FileManager.default.contentsOfDirectory(
+                at: stage, includingPropertiesForKeys: [.isSymbolicLinkKey])) ?? []
+            for entry in entries {
+                let isLink = (try? entry.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
+                if isLink { try? FileManager.default.removeItem(at: entry) }
             }
             // Link the base package and every sibling with the same title ID
             // (updates, DLC), so the script can pick the newest version.
@@ -208,8 +216,13 @@ final class BuildRunner: ObservableObject {
         args += ["--progress", "json"]
 
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["python3"] + args
+        if let python = Self.pythonExecutable() {
+            process.executableURL = URL(fileURLWithPath: python)
+            process.arguments = args
+        } else {
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.arguments = ["python3"] + args
+        }
         process.currentDirectoryURL = repo
         process.environment = Self.environment()
 
@@ -615,6 +628,21 @@ final class BuildRunner: ObservableObject {
     // MARK: Helpers
 
     /// The build folder can be cleaned; keep a copy of the game icon for the library.
+    /// A title ID is 16 hex digits. Anything else becomes a random name so a
+    /// crafted value can never escape the cache directory.
+    /// Absolute interpreter path, resolved once: `/usr/bin/env` would pick
+    /// Apple's Python 3.9 when the app is launched from Finder.
+    nonisolated static func pythonExecutable() -> String? {
+        ["/opt/homebrew/bin/python3", "/usr/local/bin/python3", "/usr/bin/python3"]
+            .first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    nonisolated static func safeIdentifier(_ raw: String?) -> String {
+        guard let raw else { return UUID().uuidString }
+        let hex = raw.filter { $0.isHexDigit }
+        return hex.count == 16 && hex.count == raw.count ? hex : UUID().uuidString
+    }
+
     private static func cacheIcon(at path: String, titleID: String?) -> String? {
         let fm = FileManager.default
         let source = URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
@@ -622,7 +650,7 @@ final class BuildRunner: ObservableObject {
         guard let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
         let dir = base.appendingPathComponent("NXN Studio/Icons", isDirectory: true)
         try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
-        let id = titleID?.isEmpty == false ? titleID! : UUID().uuidString
+        let id = Self.safeIdentifier(titleID)
         let ext = source.pathExtension.isEmpty ? "jpg" : source.pathExtension.lowercased()
         let destination = dir.appendingPathComponent("\(id).\(ext)")
         try? fm.removeItem(at: destination)

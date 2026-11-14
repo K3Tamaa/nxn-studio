@@ -2,6 +2,20 @@
 
 **English** · [Français](CHANGELOG.fr.md)
 
+## 1.5.0
+
+Security and hardening pass:
+
+- Homebrew installer pinned to a reviewed commit with SHA-256 verification, run from Terminal as the user (no admin prompt inside the app).
+- Atomic app updates (`.new`/`.old` with rollback), bundle-identifier check, positional shell arguments, GitHub-only download hosts.
+- Release scripts: confirmation before commit, no forced tags or pushes, no release overwrite, private key passed through stdin, `chmod 600` on the key file.
+- IGDB credentials sent in the request body, Keychain write failures reported, image type/size limits.
+- Process handling: whole process tree on quit, parallel pipe draining, 2 MB log cap, cancellation uses `Process.isRunning`.
+- Git commands neutralise repository hooks and the file-system monitor; automatic home-folder repository detection removed.
+- Python resolved to an absolute path; staging keeps extracted files and checks disk space on its own volume.
+- Launcher restricted to `org.nxnative.<16 hex>` bundles, icons loaded on the main thread.
+- Development flags compile into debug builds only.
+
 ## 1.4.0
 
 - Full English interface (default), French switchable in Appearance; variable texts and PR states follow the language.

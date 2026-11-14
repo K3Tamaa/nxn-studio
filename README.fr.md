@@ -25,7 +25,7 @@ Client macOS natif (SwiftUI) pour [seedds/nxnative](https://github.com/seedds/nx
 
 Identiques à nxnative :
 
-- Mac Apple silicon, macOS 26.6 ou plus récent.
+- Mac Apple silicon, macOS 15 ou plus récent.
 - Xcode 27.2 + toolchain Metal (`xcodebuild -downloadComponent MetalToolchain`).
 - Le checkout du projet : `git clone https://github.com/seedds/nxnative.git ~/nxnative`.
 - Python 3.12 arm64 avec `lz4`, `capstone>=5,<6`, `fonttools`, `nsz`, `zbic`.

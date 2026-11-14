@@ -98,6 +98,8 @@ final class RepoUpdate: ObservableObject {
     @Published private(set) var state: State = .idle
     @Published private(set) var lastCheck: Date?
     @Published private(set) var log: [String] = []
+    nonisolated static let gitSecurityFlags = ["-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null"]
+
     @Published private(set) var lastUpdate: RepoChangelog?
     @Published private(set) var recent: RepoChangelog?
 
@@ -172,14 +174,14 @@ final class RepoUpdate: ObservableObject {
         state = .checking
         log = []
 
-        let inside = await ShellRunner.run(["git", "-C", repo.path, "rev-parse", "--is-inside-work-tree"])
+        let inside = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "--is-inside-work-tree"])
         guard inside.succeeded, inside.output.contains("true") else {
             state = .notGit("Le dossier choisi n'est pas un dépôt git.")
             lastCheck = Date()
             return
         }
 
-        let fetch = await ShellRunner.run(["git", "-C", repo.path, "fetch", "--quiet", "--prune"])
+        let fetch = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["fetch", "--quiet", "--prune"])
         guard fetch.succeeded else {
             state = .failed(Self.shortError(fetch) ?? "git fetch a échoué (réseau indisponible ?)")
             lastCheck = Date()
@@ -187,7 +189,7 @@ final class RepoUpdate: ObservableObject {
         }
 
         let upstream = await ShellRunner.run(
-            ["git", "-C", repo.path, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"])
+            ["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"])
         let upstreamName = upstream.output.trimmingCharacters(in: .whitespacesAndNewlines)
         guard upstream.succeeded, !upstreamName.isEmpty else {
             state = .notGit("Aucune branche amont configurée pour ce checkout.")
@@ -196,7 +198,7 @@ final class RepoUpdate: ObservableObject {
         }
 
         let counts = await ShellRunner.run(
-            ["git", "-C", repo.path, "rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
+            ["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
         let numbers = counts.output
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(whereSeparator: { $0 == " " || $0 == "\t" })
@@ -205,7 +207,7 @@ final class RepoUpdate: ObservableObject {
         let behind = numbers.count > 1 ? numbers[1] : 0
 
         let logResult = await ShellRunner.run(
-            ["git", "-C", repo.path, "log", "-1", "--format=%h%x1f%s%x1f%cr"])
+            ["git", "-C", repo.path] + Self.gitSecurityFlags + ["log", "-1", "--format=%h%x1f%s%x1f%cr"])
         let logParts = logResult.output
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .components(separatedBy: "\u{1f}")
@@ -216,7 +218,7 @@ final class RepoUpdate: ObservableObject {
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
 
-        let status = await ShellRunner.run(["git", "-C", repo.path, "status", "--porcelain"])
+        let status = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["status", "--porcelain"])
         let dirty = !status.output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
         let snapshot = Snapshot(
@@ -236,14 +238,14 @@ final class RepoUpdate: ObservableObject {
     func update(repo: URL?) async -> Bool {
         guard let repo, case .behind = state, !isBusy else { return false }
         let branch = state.snapshot?.branchName ?? "main"
-        let before = await ShellRunner.run(["git", "-C", repo.path, "rev-parse", "HEAD"])
+        let before = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "HEAD"])
         let beforeSHA = before.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
         state = .updating
         log = ["$ git pull --ff-only"]
 
         let result = await ShellRunner.run(
-            ["git", "-C", repo.path, "pull", "--ff-only"],
+            ["git", "-C", repo.path] + Self.gitSecurityFlags + ["pull", "--ff-only"],
             onLine: { [weak self] line in
                 Task { @MainActor in self?.append(line) }
             }
@@ -269,12 +271,12 @@ final class RepoUpdate: ObservableObject {
     static func changelog(repo: URL, from: String, branch: String) async -> RepoChangelog? {
         guard !from.isEmpty else { return nil }
 
-        let head = await ShellRunner.run(["git", "-C", repo.path, "rev-parse", "HEAD"])
+        let head = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "HEAD"])
         let to = head.output.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !to.isEmpty else { return nil }
 
         let countResult = await ShellRunner.run(
-            ["git", "-C", repo.path, "rev-list", "--count", "\(from)..\(to)"])
+            ["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-list", "--count", "\(from)..\(to)"])
         let total = Int(countResult.output.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
 
         let logResult = await ShellRunner.run([
@@ -297,11 +299,11 @@ final class RepoUpdate: ObservableObject {
     /// Latest commits of the checkout, shown when no update was recorded by
     /// this app (for example after a `git pull` in Terminal).
     static func recentChangelog(repo: URL, limit: Int = 20) async -> RepoChangelog? {
-        let branchResult = await ShellRunner.run(["git", "-C", repo.path, "rev-parse", "--abbrev-ref", "HEAD"])
+        let branchResult = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "--abbrev-ref", "HEAD"])
         let branch = branchResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !branch.isEmpty else { return nil }
 
-        let headResult = await ShellRunner.run(["git", "-C", repo.path, "rev-parse", "HEAD"])
+        let headResult = await ShellRunner.run(["git", "-C", repo.path] + Self.gitSecurityFlags + ["rev-parse", "HEAD"])
         let head = headResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !head.isEmpty else { return nil }
 

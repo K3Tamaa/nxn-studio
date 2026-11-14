@@ -107,7 +107,6 @@ final class RepoNews: ObservableObject {
 
     private let defaults = UserDefaults.standard
     private var lastSeen: Date
-    private var lastAttempt: Date?
 
     init() {
         lastSeen = defaults.object(forKey: "newsLastSeen") as? Date ?? .distantPast
@@ -151,7 +150,6 @@ final class RepoNews: ObservableObject {
     func refresh() async {
         guard !isLoading else { return }
         isLoading = true
-        lastAttempt = Date()
         defer { isLoading = false }
 
         do {

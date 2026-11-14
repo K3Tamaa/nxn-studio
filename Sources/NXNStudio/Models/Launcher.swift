@@ -57,7 +57,12 @@ final class LauncherStore: ObservableObject {
             Self.collect(roots: roots, recordPaths: recordPaths, knownTitleIDs: known)
         }.value
 
-        games = found
+        // App icons come from AppKit and stay on the main actor.
+        games = found.map { game in
+            var copy = game
+            copy.icon = NSWorkspace.shared.icon(forFile: game.path.path)
+            return copy
+        }
         lastScan = Date()
     }
 
@@ -82,12 +87,20 @@ final class LauncherStore: ObservableObject {
 
     // MARK: Internals
 
+    /// Only `org.nxnative.<16 hex>` bundles are offered as games.
+    nonisolated static func isGameBundleID(_ id: String) -> Bool {
+        let parts = id.split(separator: ".")
+        guard parts.count == 3, parts[0] == "org", parts[1] == "nxnative" else { return false }
+        let suffix = parts[2]
+        return suffix.count == 16 && suffix.allSatisfy(\.isHexDigit)
+    }
+
     nonisolated static func inspect(_ bundle: URL) -> InstalledGame? {
         guard bundle.pathExtension.lowercased() == "app",
               let info = NSDictionary(contentsOf: bundle.appendingPathComponent("Contents/Info.plist")) as? [String: Any]
         else { return nil }
         let bundleID = info["CFBundleIdentifier"] as? String ?? ""
-        guard bundleID.hasPrefix("org.nxnative.") || bundleID == "org.nxnative" else { return nil }
+        guard isGameBundleID(bundleID) else { return nil }
 
         let titleID = bundleID.split(separator: ".").last.map(String.init)
         let looksLikeTitle = titleID?.count == 16 && titleID?.allSatisfy(\.isHexDigit) == true
@@ -103,7 +116,7 @@ final class LauncherStore: ObservableObject {
             titleID: looksLikeTitle ? titleID : nil,
             version: version,
             modified: modified,
-            icon: NSWorkspace.shared.icon(forFile: bundle.path)
+            icon: nil
         )
     }
 

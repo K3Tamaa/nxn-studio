@@ -130,6 +130,7 @@ final class DependencyInstaller: ObservableObject {
     @Published private(set) var lastFailure: String?
 
     private var runningPID: Int32?
+    private var runningProcess: Process?
     private var cancelled = false
 
     init() {
@@ -205,13 +206,14 @@ final class DependencyInstaller: ObservableObject {
     }
 
     func cancel() {
-        guard isRunning, let pid = runningPID else { return }
+        guard isRunning, let process = runningProcess, process.isRunning else { return }
         cancelled = true
         append("Interruption demandée…", .failure)
+        let pid = process.processIdentifier
         ProcessTree.terminate(pid: pid)
         let deadline = DispatchTime.now() + 3
         DispatchQueue.global().asyncAfter(deadline: deadline) {
-            if kill(pid, 0) == 0 { ProcessTree.terminate(pid: pid, signal: SIGKILL) }
+            if process.isRunning { ProcessTree.terminate(pid: pid, signal: SIGKILL) }
         }
     }
 
@@ -239,12 +241,16 @@ final class DependencyInstaller: ObservableObject {
             onLaunch: { [weak self] pid in
                 Task { @MainActor in self?.runningPID = pid }
             },
+            onProcess: { [weak self] process in
+                Task { @MainActor in self?.runningProcess = process }
+            },
             onLine: { [weak self] line in
                 Task { @MainActor in self?.append(line, .output) }
             }
         )
 
         runningPID = nil
+        runningProcess = nil
         runningID = nil
 
         if cancelled {

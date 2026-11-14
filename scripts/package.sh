@@ -12,7 +12,8 @@ swift build -c release
 echo "▸ Icône…"
 mkdir -p Resources build/AppIcon.iconset
 if [ ! -f Resources/icon-1024.png ]; then
-  "$BIN" --make-icon Resources/icon-1024.png
+  swift build >/dev/null
+  .build/debug/NXNStudio --make-icon Resources/icon-1024.png
 fi
 for spec in "16 icon_16x16" "32 icon_16x16@2x" "32 icon_32x32" "64 icon_32x32@2x" \
             "128 icon_128x128" "256 icon_128x128@2x" "256 icon_256x256" \
@@ -33,7 +34,6 @@ VERSION="${VERSION:-$(cat VERSION 2>/dev/null || echo 1.0.0)}"
 BUILD="${BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
 plutil -replace CFBundleVersion -string "$BUILD" "$APP/Contents/Info.plist"
-[ -n "${FEED_URL:-}" ] && plutil -replace SUFeedURL -string "$FEED_URL" "$APP/Contents/Info.plist"
 # Feuille de mise à jour par défaut du projet (surchargée par UPDATE_FEED).
 UPDATE_FEED="${UPDATE_FEED:-https://github.com/K3Tamaa/nxn-studio/releases/latest/download/latest.json}"
 [ -n "${UPDATE_FEED:-}" ] && plutil -replace NXNUpdateFeed -string "$UPDATE_FEED" "$APP/Contents/Info.plist"

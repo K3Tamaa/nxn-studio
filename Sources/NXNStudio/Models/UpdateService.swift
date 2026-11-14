@@ -92,8 +92,17 @@ final class UpdateService: ObservableObject {
     // MARK: Download / install
 
     func downloadOnly(_ manifest: UpdateManifest) {
+        guard Self.isAllowedDownloadHost(manifest.url) else {
+            phase = .failed("Lien de téléchargement refusé : seul github.com est autorisé.")
+            return
+        }
         NSWorkspace.shared.open(manifest.url)
         showSheet = false
+    }
+
+    nonisolated static func isAllowedDownloadHost(_ url: URL) -> Bool {
+        guard url.scheme?.lowercased() == "https", let host = url.host?.lowercased() else { return false }
+        return host == "github.com" || host == "objects.githubusercontent.com"
     }
 
     func install(_ manifest: UpdateManifest) async {
@@ -190,16 +199,38 @@ final class UpdateService: ObservableObject {
     }
 
     private func relaunchReplacing(target: String, with staged: URL) throws {
+        let targetURL = URL(fileURLWithPath: target)
+        let stagedPlist = staged.appendingPathComponent("Contents/Info.plist")
+        let targetPlist = targetURL.appendingPathComponent("Contents/Info.plist")
+        guard let newInfo = NSDictionary(contentsOf: stagedPlist) as? [String: Any],
+              let oldInfo = NSDictionary(contentsOf: targetPlist) as? [String: Any],
+              let newID = newInfo["CFBundleIdentifier"] as? String,
+              let oldID = oldInfo["CFBundleIdentifier"] as? String,
+              newID == oldID else {
+            throw UpdateError.message("La nouvelle version ne correspond pas à cette app. Installation annulée.")
+        }
+
+        // Atomic swap: move the old app aside, copy the new one next to it,
+        // then rename it into place. Any failure restores the previous app.
         let script = """
         sleep 1
-        rm -rf "\(target)"
-        ditto "\(staged.path)" "\(target)"
-        xattr -dr com.apple.quarantine "\(target)" 2>/dev/null
-        open "\(target)"
+        NEW="$1.new"
+        OLD="$1.old"
+        rm -rf "$NEW" "$OLD"
+        mv "$1" "$OLD" || exit 1
+        cp -R "$2" "$NEW" || { mv "$OLD" "$1"; exit 1; }
+        xattr -dr com.apple.quarantine "$NEW" 2>/dev/null
+        if mv "$NEW" "$1"; then
+          rm -rf "$OLD"
+        else
+          mv "$OLD" "$1"
+          exit 1
+        fi
+        open "$1"
         """
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
-        process.arguments = ["-c", script]
+        process.arguments = ["-c", script, "sh", target, staged.path]
         try process.run()
         NSApp.terminate(nil)
     }

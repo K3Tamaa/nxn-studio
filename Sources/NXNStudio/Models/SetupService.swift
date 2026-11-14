@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import CryptoKit
 
 // MARK: - Setup
 
@@ -32,26 +33,28 @@ final class SetupService: ObservableObject {
 
     // MARK: Homebrew
 
+    /// Pinned to a reviewed commit: `HEAD` could change under a published
+    /// checksum. SHA-256 is verified before the script is ever handed over.
+    nonisolated static let homebrewInstallerURL = URL(string:
+        "https://raw.githubusercontent.com/Homebrew/install/e5b3c5834e3932c8aaa42deef4794076c9b0cbf0/install.sh")!
+    nonisolated static let homebrewInstallerSHA256 =
+        "5f333bbe53bc490e51e7ccb1df8779b3dd6ee73a1a7379efda216edb08ccb148"
+
     func installHomebrew() async {
         guard !isRunning else { return }
         isRunning = true
         task = .homebrew
         lastError = nil
-        log = ["Préparation de l'installation de Homebrew…"]
+        log = [L.t("Préparation de l'installation de Homebrew…", "Preparing the Homebrew installation…")]
         showSheet = true
         defer { isRunning = false }
 
         do {
             let script = try await downloadInstaller()
-            log.append("macOS va demander votre mot de passe administrateur.")
-            let apple = "do shell script \"NONINTERACTIVE=1 /bin/bash '\(script.path)'\" with administrator privileges"
-            let result = await ShellRunner.run(["osascript", "-e", apple], onLine: { [weak self] line in
-                Task { @MainActor in self?.append(line) }
-            })
-            guard result.succeeded, homebrewPath != nil else {
-                throw SetupError.message(Self.shortError(result) ?? "Homebrew n'a pas pu être installé.")
-            }
-            log.append("✓ Homebrew installé (\(homebrewPath ?? ""))")
+            log.append(L.t("Script vérifié (SHA-256).", "Script verified (SHA-256)."))
+            log.append(L.t("L'installation s'ouvre dans Terminal ; Homebrew demandera votre mot de passe si nécessaire.", "The installer opens in Terminal; Homebrew will ask for your password if needed."))
+            openInTerminal(script)
+            log.append(L.t("✓ Installation lancée dans Terminal", "✓ Installer started in Terminal"))
             task = .idle
         } catch {
             lastError = (error as? SetupError)?.text ?? error.localizedDescription
@@ -59,16 +62,34 @@ final class SetupService: ObservableObject {
         }
     }
 
+    /// Runs the installer as the logged-in user in Terminal: the app never
+    /// executes it as root and never handles the admin prompt itself.
+    private func openInTerminal(_ script: URL) {
+        let command = "NONINTERACTIVE=1 /bin/bash '\(script.path)'"
+        let apple = "tell application \"Terminal\" to do script \"\(command.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\""))\""
+        _ = ShellRunner.runSync(["osascript", "-e", apple])
+        NSWorkspace.shared.launchApplication("Terminal")
+    }
+
     private func downloadInstaller() async throws -> URL {
-        let url = URL(string: "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh")!
-        let (temp, response) = try await URLSession.shared.download(from: url)
+        let (temp, response) = try await URLSession.shared.download(from: Self.homebrewInstallerURL)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw SetupError.message("Le script d'installation de Homebrew est injoignable.")
         }
         let destination = FileManager.default.temporaryDirectory.appendingPathComponent("nxn-brew-install.sh")
         try? FileManager.default.removeItem(at: destination)
         try FileManager.default.moveItem(at: temp, to: destination)
+        guard Self.verifyInstaller(at: destination, expectedSHA256: Self.homebrewInstallerSHA256) else {
+            try? FileManager.default.removeItem(at: destination)
+            throw SetupError.message("Le script Homebrew ne correspond pas à l'empreinte attendue. Installation refusée.")
+        }
         return destination
+    }
+
+    nonisolated static func verifyInstaller(at url: URL, expectedSHA256: String) -> Bool {
+        guard let data = try? Data(contentsOf: url), !data.isEmpty else { return false }
+        let digest = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        return digest.caseInsensitiveCompare(expectedSHA256) == .orderedSame
     }
 
     // MARK: Clone

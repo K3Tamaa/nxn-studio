@@ -28,11 +28,11 @@ struct SetupSheetView: View {
     private var subtitle: String {
         if setup.isRunning {
             return setup.task == .homebrew
-                ? L.t("Le script officiel tourne ; macOS demande votre mot de passe.")
-                : L.t("Récupération du dépôt nxnative…")
+                ? L.t("Le script officiel tourne ; macOS demande votre mot de passe.", "Terminal installs Homebrew; macOS may ask for your password.")
+                : L.t("Récupération du dépôt nxnative…", "Cloning the nxnative repository…")
         }
         if let error = setup.lastError { return error }
-        return L.t("Les opérations restent sur votre Mac.")
+        return L.t("Les opérations restent sur votre Mac.", "Everything stays on your Mac.")
     }
 
     private var header: some View {

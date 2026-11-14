@@ -212,8 +212,7 @@ final class AppState: ObservableObject {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         if panel.runModal() == .OK, let url = panel.url {
-            repoPath = url.path
-            refreshRepo()
+            repoPath = url.path   // didSet already refreshes
         }
     }
 
@@ -320,9 +319,13 @@ final class AppState: ObservableObject {
     // MARK: Persistence helpers
 
     private static func loadRecords() -> [BuildRecord] {
-        guard let data = UserDefaults.standard.data(forKey: "buildRecords"),
-              let list = try? JSONDecoder().decode([BuildRecord].self, from: data) else { return [] }
-        return list
+        guard let data = UserDefaults.standard.data(forKey: "buildRecords") else { return [] }
+        do {
+            return try JSONDecoder().decode([BuildRecord].self, from: data)
+        } catch {
+            NSLog("NXN Studio: build history could not be decoded — %@", error.localizedDescription)
+            return []
+        }
     }
 
     private static func saveRecords(_ records: [BuildRecord]) {
@@ -347,16 +350,8 @@ final class AppState: ObservableObject {
             if isCheckout(candidate) { return candidate.path }
         }
 
-        // Fall back to a single-level scan of the home folder: any folder with
-        // the build script counts as a checkout.
-        let entries = (try? FileManager.default.contentsOfDirectory(
-            at: home,
-            includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsHiddenFiles]
-        )) ?? []
-        for entry in entries where isCheckout(entry) {
-            return entry.path
-        }
+        // Never scan the home folder on our own: a checkout is only used when
+        // it sits at a well-known location, otherwise the user picks it.
         return ""
     }
 

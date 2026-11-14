@@ -4,3 +4,9 @@ fixtures/
 shots/
 build/
 .DS_Store
+*.keys
+.env
+*.p12
+*.nsp
+*.nsz
+*.xci

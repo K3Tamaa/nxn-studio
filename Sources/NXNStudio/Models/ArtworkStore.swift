@@ -69,15 +69,18 @@ final class ArtworkStore: ObservableObject {
 
     // MARK: Credentials
 
-    func saveSecret(_ value: String) {
+    @discardableResult
+    func saveSecret(_ value: String) -> Bool {
         secret = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        var stored = true
         if secret.isEmpty {
             Keychain.delete("igdbSecret")
         } else {
-            Keychain.set(secret, account: "igdbSecret")
+            stored = Keychain.set(secret, account: "igdbSecret")
         }
         token = nil
         tokenExpiry = nil
+        return stored
     }
 
     var isConfigured: Bool {
@@ -249,6 +252,8 @@ final class ArtworkStore: ObservableObject {
         persist()
     }
 
+    private static let maxImageBytes = 8 * 1024 * 1024
+
     private func fetchImage(_ url: URL) async -> Data? {
         var request = URLRequest(url: url)
         request.timeoutInterval = 25
@@ -256,6 +261,9 @@ final class ArtworkStore: ObservableObject {
         guard let (data, response) = try? await URLSession.shared.data(for: request),
               let http = response as? HTTPURLResponse,
               http.statusCode == 200 else { return nil }
+        guard data.count <= Self.maxImageBytes else { return nil }
+        let type = (http.value(forHTTPHeaderField: "Content-Type") ?? "").lowercased()
+        guard type.hasPrefix("image/") else { return nil }
         return data
     }
 

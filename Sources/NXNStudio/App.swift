@@ -6,6 +6,7 @@ enum NXNStudioMain {
     static func main() {
         let arguments = CommandLine.arguments
 
+        #if DEBUG
         if let iconIndex = arguments.firstIndex(of: "--make-icon"), arguments.count > iconIndex + 1 {
             IconExporter.export(to: arguments[iconIndex + 1])
             return
@@ -21,7 +22,14 @@ enum NXNStudioMain {
         if let signIndex = arguments.firstIndex(of: "--sign-update"),
            arguments.count > signIndex + 2 {
             let file = URL(fileURLWithPath: arguments[signIndex + 1])
-            guard let signature = UpdateCrypto.sign(file: file, privateKey: arguments[signIndex + 2]) else {
+            let key: String?
+            if arguments[signIndex + 2] == "-" {
+                let data = FileHandle.standardInput.readDataToEndOfFile()
+                key = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            } else {
+                key = arguments[signIndex + 2]
+            }
+            guard let key, let signature = UpdateCrypto.sign(file: file, privateKey: key) else {
                 FileHandle.standardError.write(Data("sign failed\n".utf8))
                 exit(1)
             }
@@ -29,7 +37,6 @@ enum NXNStudioMain {
             return
         }
 
-        #if DEBUG
         if let probeIndex = arguments.firstIndex(of: "--test-update"),
            arguments.count > probeIndex + 1 {
             let key = arguments.count > probeIndex + 2 ? arguments[probeIndex + 2] : nil
@@ -56,7 +63,6 @@ enum NXNStudioMain {
             ChangelogProbe.run(repo: arguments[probeIndex + 1])
             return
         }
-        #endif
 
         if let testIndex = arguments.firstIndex(of: "--selftest"), arguments.count > testIndex + 1 {
             BuildSelfTest.run(repo: arguments[testIndex + 1])
@@ -80,6 +86,22 @@ enum NXNStudioMain {
             Snapshotter.run(path: path, route: route, repo: repo)
             return
         }
+        #endif
+
+        #if !DEBUG
+        // Development flags must fail loudly in a release build instead of
+        // falling through and launching the GUI.
+        let developmentFlags = [
+            "--make-icon", "--gen-update-key", "--sign-update",
+            "--selftest", "--selftest-update", "--selftest-install",
+            "--screenshot", "--screenshot-changelog", "--screenshot-update",
+            "--test-update", "--changelog",
+        ]
+        if arguments.contains(where: { developmentFlags.contains($0) }) {
+            FileHandle.standardError.write(Data("development-only flag in a release build\n".utf8))
+            exit(2)
+        }
+        #endif
 
         NXNStudioApp.main()
     }

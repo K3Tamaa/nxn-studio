@@ -5,12 +5,17 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VERSION=$(cat VERSION)
+if [ -f "$HOME/.nxnstudio/update-keypair.txt" ]; then
+  chmod 600 "$HOME/.nxnstudio/update-keypair.txt"
+fi
 DMG="dist/NXN Studio $VERSION.dmg"
 [ -f "$DMG" ] || { echo "✗ DMG manquant : lancez ./scripts/package.sh"; exit 1; }
 [ -n "${UPDATE_PRIVATE_KEY:-}" ] || { echo "✗ UPDATE_PRIVATE_KEY manquante"; exit 1; }
 BASE_URL="${1:?URL de base des releases (ex. https://github.com/toi/nxn-studio/releases/download/v1.2.0)}"
 
-SIG=$("dist/NXN Studio.app/Contents/MacOS/NXNStudio" --sign-update "$DMG" "$UPDATE_PRIVATE_KEY")
+[ -x .build/debug/NXNStudio ] || swift build >/dev/null
+# The private key travels through stdin, never argv.
+SIG=$(printf '%s' "$UPDATE_PRIVATE_KEY" | .build/debug/NXNStudio --sign-update "$DMG" -)
 SIZE=$(stat -f%z "$DMG")
 SHA=$(shasum -a 256 "$DMG" | cut -d' ' -f1)
 FILE=$(basename "$DMG" | sed 's/ /%20/g')

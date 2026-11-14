@@ -34,15 +34,22 @@ enum IGDB {
     // MARK: Auth
 
     static func requestToken(clientID: String, secret: String) async throws -> IGDBToken {
-        var components = URLComponents(string: "https://id.twitch.tv/oauth2/token")!
-        components.queryItems = [
-            URLQueryItem(name: "client_id", value: clientID),
-            URLQueryItem(name: "client_secret", value: secret),
-            URLQueryItem(name: "grant_type", value: "client_credentials"),
-        ]
-        var request = URLRequest(url: components.url!)
+        var request = URLRequest(url: URL(string: "https://id.twitch.tv/oauth2/token")!)
         request.httpMethod = "POST"
         request.timeoutInterval = 20
+        // Credentials belong in the body, never in the query string.
+        func formEscape(_ value: String) -> String {
+            var allowed = CharacterSet.alphanumerics
+            allowed.insert(charactersIn: "-._~")
+            return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? ""
+        }
+        let body = [
+            "client_id=\(formEscape(clientID))",
+            "client_secret=\(formEscape(secret))",
+            "grant_type=client_credentials",
+        ].joined(separator: "&")
+        request.httpBody = Data(body.utf8)
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
         let data: Data
         let response: URLResponse
@@ -76,9 +83,7 @@ enum IGDB {
     // MARK: Search
 
     static func search(_ name: String, token: IGDBToken, clientID: String, limit: Int = 6) async throws -> [IGDBGame] {
-        let escaped = name
-            .replacingOccurrences(of: "\\", with: " ")
-            .replacingOccurrences(of: "\"", with: " ")
+        let escaped = Self.sanitizedSearchTerm(name)
         let body = """
         search "\(escaped)";
         fields name,cover.url,artworks.url;
@@ -138,6 +143,19 @@ enum IGDB {
                 artworkURL: imageURL(game.artworks?.first?.url, size: "t_720p")
             )
         }
+    }
+
+    nonisolated static func sanitizedSearchTerm(_ name: String) -> String {
+        name
+            .replacingOccurrences(of: "\\", with: " ")
+            .replacingOccurrences(of: "\"", with: " ")
+            .replacingOccurrences(of: ";", with: " ")
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\r", with: " ")
+            .replacingOccurrences(of: "\t", with: " ")
+            .replacingOccurrences(of: "\u{0}", with: " ")
+            .split(whereSeparator: { $0 == " " })
+            .joined(separator: " ")
     }
 
     private static func imageURL(_ raw: String?, size: String) -> URL? {

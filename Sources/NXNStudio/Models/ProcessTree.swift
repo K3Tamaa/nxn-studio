@@ -5,8 +5,17 @@ import Foundation
 /// after the app cancels the direct child.
 enum ProcessTree {
     static func terminate(pid: Int32, signal: Int32 = SIGINT) {
+        // `ps` must not run on the main thread; the signal is sent from a
+        // detached task, deepest children first.
+        let target = pid
+        Task.detached(priority: .utility) {
+            signalTree(pid: target, signal: signal)
+        }
+    }
+
+    private static func signalTree(pid: Int32, signal: Int32) {
         for child in children(of: pid) {
-            terminate(pid: child, signal: signal)
+            signalTree(pid: child, signal: signal)
         }
         kill(pid, signal)
     }

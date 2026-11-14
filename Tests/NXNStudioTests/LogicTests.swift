@@ -114,3 +114,69 @@ final class LogicTests: XCTestCase {
         XCTAssertTrue(args.contains("v1441792"))
     }
 }
+
+// MARK: - Hardening
+
+extension LogicTests {
+    func testHomebrewInstallerHash() throws {
+        let file = FileManager.default.temporaryDirectory
+            .appendingPathComponent("brew-\(UUID().uuidString).sh")
+        try Data("abc".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: file) }
+
+        let good = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        XCTAssertTrue(SetupService.verifyInstaller(at: file, expectedSHA256: good))
+        XCTAssertFalse(SetupService.verifyInstaller(at: file, expectedSHA256: String(repeating: "0", count: 64)))
+    }
+
+    func testUpdateHostAllowList() {
+        XCTAssertTrue(UpdateService.isAllowedDownloadHost(URL(string: "https://github.com/a/b")!))
+        XCTAssertTrue(UpdateService.isAllowedDownloadHost(URL(string: "https://objects.githubusercontent.com/x")!))
+        XCTAssertFalse(UpdateService.isAllowedDownloadHost(URL(string: "https://evil.example/x.dmg")!))
+        XCTAssertFalse(UpdateService.isAllowedDownloadHost(URL(string: "http://github.com/x")!))
+    }
+
+    func testSearchTermSanitizer() {
+        let raw = "Zelda;\n new\r\t\"Game\" \\  "
+        let clean = IGDB.sanitizedSearchTerm(raw)
+        XCTAssertFalse(clean.contains(";"))
+        XCTAssertFalse(clean.contains("\n"))
+        XCTAssertFalse(clean.contains("\r"))
+        XCTAssertFalse(clean.contains("\""))
+        XCTAssertFalse(clean.contains("\\"))
+    }
+
+    func testOutputCollectorKeepsTail() {
+        let collector = OutputCollector()
+        let chunk = String(repeating: "x", count: 1024) + "\n"
+        for _ in 0..<2200 { collector.feed(Data(chunk.utf8)) }
+        collector.feed(Data("LAST LINE\n".utf8))
+        collector.finish()
+        XCTAssertLessThanOrEqual(collector.output.utf8.count, 2 * 1024 * 1024 + 64)
+        XCTAssertTrue(collector.output.contains("LAST LINE"))
+    }
+
+    func testSafeIdentifier() {
+        XCTAssertFalse(BuildRunner.safeIdentifier(nil).contains("/"))
+        XCTAssertNotEqual(BuildRunner.safeIdentifier("../x"), "../x")
+        XCTAssertEqual(BuildRunner.safeIdentifier("0100152000022000"), "0100152000022000")
+    }
+
+    func testGameBundleIdentifier() {
+        XCTAssertTrue(LauncherStore.isGameBundleID("org.nxnative.0100152000022000"))
+        XCTAssertFalse(LauncherStore.isGameBundleID("org.nxnative.xyz"))
+        XCTAssertFalse(LauncherStore.isGameBundleID("studio.nxnative.client"))
+        XCTAssertFalse(LauncherStore.isGameBundleID("org.nxnative.010015200002200"))
+    }
+
+    func testGitSecurityFlags() {
+        XCTAssertTrue(RepoUpdate.gitSecurityFlags.contains("core.fsmonitor=false"))
+        XCTAssertTrue(RepoUpdate.gitSecurityFlags.contains("core.hooksPath=/dev/null"))
+    }
+
+    func testPythonExecutableExists() {
+        let python = BuildRunner.pythonExecutable()
+        XCTAssertNotNil(python)
+        if let python { XCTAssertTrue(FileManager.default.isExecutableFile(atPath: python)) }
+    }
+}
